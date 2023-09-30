@@ -29,7 +29,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         updates.forEach(update -> {
             logger.info("Processing update: {}", update);
             // Process your updates here
-
+            // privalov
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }

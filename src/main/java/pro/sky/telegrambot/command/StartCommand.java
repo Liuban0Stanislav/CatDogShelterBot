@@ -19,11 +19,12 @@ public class StartCommand implements Commands {
 
     @Override
     public void handle(Update update) {
-        log.debug("Команда START. Метод handle");
+        log.info("Команда START. Метод handle");
+
         Long chatId = update.message().chat().id();
         log.debug("chatID = {}", chatId);
 
-        SendMessage message = new SendMessage(chatId, "Здорова!");
+        SendMessage message = new SendMessage(chatId, "Вас приветствует бот сети приютов для животных \"CatDogShelter\"");
         log.debug("сформировано сообщение: {}", message);
 
         bot.execute(message);

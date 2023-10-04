@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 @Slf4j
-@Component
+//@Component
 public class StartCommand implements Commands {
     private TelegramBot bot;
 

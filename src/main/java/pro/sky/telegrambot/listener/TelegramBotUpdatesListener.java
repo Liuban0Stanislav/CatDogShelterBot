@@ -74,14 +74,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         SendMessage message = new SendMessage(chatId, "Это меню рассказывает о адресах и расписании приютов");
         logger.info("message = {}", message);
 
-        boolean isTelegramBotNull;
-        if (!telegramBot.equals(null)){
-            isTelegramBotNull = false;
-        }else {isTelegramBotNull = true;}
-        logger.info("telegramBot = {}, является ли телеграмм бот null = {}", telegramBot.toString(), isTelegramBotNull);
-
-        telegramBot.execute(message.replyMarkup(replyKeyboardMarkup));
         logger.info("execute сработал {}", telegramBot.execute(message.replyMarkup(replyKeyboardMarkup)));
+        logger.info("__________________________________________________________________________________");
     }
 
     private void startCommandReact(Update update) {
@@ -93,13 +87,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 new InlineKeyboardButton("Приют для собак").callbackData("Приют для собак")
         );
         logger.info("replyKeyboardMarkup = {}", replyKeyboardMarkup);
-//                KeyboardButton button1 = new KeyboardButton("Приют для кошек");
-//                KeyboardButton button2 = new KeyboardButton("Приют для собак");
-//                ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(button1, button2);
+
         SendMessage message = new SendMessage(chatId, "Привет");
         logger.info("message = {}", message);
 
-        telegramBot.execute(message.replyMarkup(replyKeyboardMarkup));
         logger.info("execute сработал {}", telegramBot.execute(message.replyMarkup(replyKeyboardMarkup)));
         logger.info("__________________________________________________________________________________");
     }

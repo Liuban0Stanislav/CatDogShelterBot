@@ -2,154 +2,110 @@ package pro.sky.telegrambot.listener;
 
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
-import com.pengrad.telegrambot.model.CallbackQuery;
 import com.pengrad.telegrambot.model.Message;
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.model.request.*;
+import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.command.Commands;
-import pro.sky.telegrambot.command.StartCommand;
+import pro.sky.telegrambot.keyboards.KeyboardMaker;
 
 import javax.annotation.PostConstruct;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
+import static pro.sky.telegrambot.constants.Constants.*;
+import static pro.sky.telegrambot.keyboards.KeyboardMaker.*;
+
+@Slf4j
 @Service
 public class TelegramBotUpdatesListener implements UpdatesListener {
-
-    private Logger logger = LoggerFactory.getLogger(TelegramBotUpdatesListener.class);
     @Autowired
     private TelegramBot telegramBot;
-
-//    private final List<Commands> commands;
-//
-//    public TelegramBotUpdatesListener(List<Commands> commands) {
-//        this.commands = commands;
-//    }
-    Long chatId;
+    /**
+     * <br>Флажок {@link TelegramBotUpdatesListener#isChosenCat} используется для ветвления меню, в зависимости от того,
+     * какой тип приюта({@value   pro.sky.telegrambot.constants.Constants#BUTTON_CAT_SHELTER} или
+     * #{@value  pro.sky.telegrambot.constants.Constants#BUTTON_DOG_SHELTER}) выбран.</br>
+     */
+    private static boolean isChosenCat;
 
     @PostConstruct
     public void init() {
         telegramBot.setUpdatesListener(this);
     }
 
+    /**
+     * Метод используется дла получения updates. Создания и управления меню бота.
+     * <br>Меню создаются с использованием клавиатур класса {@link KeyboardMaker}</br>
+     * <br>Константы принадлежат классу {@link pro.sky.telegrambot.constants.Constants}</br>
+     * @param updates
+     * @return int
+     */
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
-                    logger.info("Processing update: {}", update);
-
-                    if (update.message() != null && update.message().text().equals("/start")) {
-                            this.startCommandReact(update);
-                    } else if (update.callbackQuery() != null) {
-                        if (update.callbackQuery().data().equals("Приют для кошек")) {
-                            logger.info("update.callbackQuery().data().equals({})", update.callbackQuery().data());
-                            this.catShelterReact(update);
-                        } else if (update.callbackQuery().data().equals("Приют для собак")){
-                            logger.info("update.callbackQuery().data().equals({})", update.callbackQuery().data());
-                        }
-                    }
-//            this.getUserData(update);
-
-
-//                commands.stream()
-//                        .filter(command -> command.ifSuitable(update))
-//                        .forEach(command -> command.handle(update));
-
-    });
+//            log.info("Processing update: {}", update);
+            log.info("---------------------------------------------------------------------------");
+            if (update.callbackQuery() != null && update.message() == null) {
+                switch (update.callbackQuery().data()) {
+                    case BUTTON_CAT_SHELTER://меню 2
+                        this.buttonReact(update, keyboardUserRequest(), MESSAGE_CHOOSE_MENU_OPT);
+                        isChosenCat = true;
+                        break;
+                    case BUTTON_DOG_SHELTER://меню 2
+                        this.buttonReact(update, keyboardUserRequest(), MESSAGE_CHOOSE_MENU_OPT);
+                        isChosenCat = false;
+                        break;
+                    case BUTTON_SHELTER_INFO://меню 2.1
+                        this.buttonReact(update, keyboardNewUserConsult(), MESSAGE_NEW_USER_CONSULT);
+                        break;
+                    case BUTTON_HOW_TO_GET_ANIMAL://меню 2.2
+                        this.buttonReact(update, keyboardCandidateConsult(), MESSAGE_PET_LEADING_MENU);
+                        break;
+                    case BUTTON_SEND_REPORT: //меню 2.3
+//                        buttonReact(update, keyboardCatLeading(), MESSAGE_PET_LEADING_MENU);
+//                        this.flagPetSeparator(update, keyboardCatLeading(), keyboardDogLeading(), MESSAGE_PET_LEADING_MENU);
+                        break;
+//                    case BUTTON_CALL_VOLUNTEER:
+//                        this.buttonReact(update, callVolunteer(), MESSAGE_CHOOSE_MENU_OPT);
+//                        break;
+                }
+            } else if (update.message().text() != null && update.callbackQuery() == null) {
+                switch (update.message().text()) {
+                    case COMMAND_START://меню 1
+                        this.startCommandReact(update);
+                        break;
+                }
+            }
+        });
+        log.info("isChosenCat = {}", isChosenCat);
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
-}
+    }
 
-    private void catShelterReact(Update update) {
-        logger.info("catShelterReact Запущен");
-        InlineKeyboardMarkup replyKeyboardMarkup = new InlineKeyboardMarkup(
-                new InlineKeyboardButton("Узнать расписание").callbackData("Узнать расписание"),
-                new InlineKeyboardButton("Узнать адреса").callbackData("Узнать адреса")
-        );
-        logger.info("replyKeyboardMarkup = {}", replyKeyboardMarkup);
-        SendMessage message = new SendMessage(chatId, "Это меню рассказывает о адресах и расписании приютов");
-        logger.info("message = {}", message);
-
-        logger.info("execute сработал {}", telegramBot.execute(message.replyMarkup(replyKeyboardMarkup)));
-        logger.info("__________________________________________________________________________________");
+    private void buttonReact(Update update, Keyboard keyboard, String textMessage) {
+        log.info("buttonReact Запущен");
+        Long chatId = update.callbackQuery().message().chat().id();
+        SendMessage message = new SendMessage(chatId, textMessage);
+        telegramBot.execute(message.replyMarkup(keyboard));
+        deletePreviousMessage(update.callbackQuery().message(), chatId);
     }
 
     private void startCommandReact(Update update) {
-        logger.info("startCommandReact Запущен");
+        log.info("startCommandReact Запущен");
+
         Long chatId = update.message().chat().id();
-        this.chatId = chatId;
-        InlineKeyboardMarkup replyKeyboardMarkup = new InlineKeyboardMarkup(
-                new InlineKeyboardButton("Приют для кошек").callbackData("Приют для кошек"),
-                new InlineKeyboardButton("Приют для собак").callbackData("Приют для собак")
-        );
-        logger.info("replyKeyboardMarkup = {}", replyKeyboardMarkup);
-
-        SendMessage message = new SendMessage(chatId, "Привет");
-        logger.info("message = {}", message);
-
-        logger.info("execute сработал {}", telegramBot.execute(message.replyMarkup(replyKeyboardMarkup)));
-        logger.info("__________________________________________________________________________________");
+        SendMessage message = new SendMessage(chatId, MESSAGE_HELLO);
+        telegramBot.execute(message.replyMarkup(KeyboardMaker.keyboardCatDog()));
     }
 
-    private void getUserData(Update update){
-        String username = update.message().chat().username();
-        Long userId = update.message().from().id();
-//        logger.info("Имя пользователя - {}\nid пользователя - {}", username, userId);
-        System.out.println("username = " + username);
-        System.out.println("userId = " + userId);
+    private void deletePreviousMessage(Message message, Long chatId) {
+        Integer messageId = message.messageId();
+        DeleteMessage deleteMessage = new DeleteMessage(chatId, messageId);
+        log.info("сообщение удалено ", telegramBot.execute(deleteMessage));
     }
 
-
-//
-//    private void processCallbackQuery(Update update) {
-//        logger.info("Processing callback query: {}", update.callbackQuery());
-//        long chatId = update.callbackQuery().message().chat().id();
-//        String callbackDataText = update.callbackQuery().data();
-//        long userId = update.callbackQuery().from().id();
-//
-//        sendMessage(this.getReplyMessage(chatId, callbackDataText, userId));
-//    }
-//    private void sendMessage(SendMessage message) {
-//        try {
-//            telegramBot.execute(message);
-//        } catch (Exception e) {
-//            logger.error("Error sending message", e);
-//        }
-//    }
-//    public SendMessage getReplyMessage(long chatId, String callbackDataText, long userId) {
-//        return switch (callbackDataText) {
-//            case "Информация о боте" -> new SendMessage(chatId, "Этот телеграмм-бот может ответить на вопросы о том, что нужно знать и уметь, " +
-//                    "чтобы забрать животное из приюта. Дать информацию о интересующем приюте. " +
-//                    "Так же, сюда можно присылать ежедневный отчет о том, как животное приспосабливается к новой обстановке");
-//            case "Вернуться к выбору приюта" -> new SendMessage(chatId, "Пожалуйста, выберите приют:").replyMarkup(getShelterTypeKeyboard());
-//            default -> new SendMessage(chatId, "Я не понимаю вашу команду. Выберите команду из списка:").replyMarkup(getStartMenuKeyboard());
-//        };
-//    }
-//    public Keyboard getShelterTypeKeyboard() {
-//        return new InlineKeyboardMarkup(
-//                new InlineKeyboardButton("Приют для кошек" + "\uD83D\uDC08")
-//                        .callbackData("Приют для кошек"),
-//                new InlineKeyboardButton("Приют для собак" + "\uD83D\uDC15")
-//                        .callbackData("Приют для собак"));
-//    }
-//    public Keyboard getStartMenuKeyboard() {
-//        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-//        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("рандомный текст")
-//                .callbackData("рандомный текст"));
-//        inlineKeyboardMarkup.addRow(new InlineKeyboardButton("рандомный текст")
-//                .callbackData("рандомный текст"));
-//        return inlineKeyboardMarkup;
-//    }
-//    private void processUserResponse(Update update) {
-//        long chatId = update.message().chat().id();
-//        String text = update.message().text();
-//
-//
-//            sendMessage(new SendMessage(chatId, "Спасибо! Ваши контактные данные сохранены."));
-//
-//    }
+    public static boolean isChosenCat() {
+        return isChosenCat;
+    }
 }

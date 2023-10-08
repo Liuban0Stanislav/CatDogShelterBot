@@ -11,10 +11,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import pro.sky.telegrambot.keyboards.KeyboardMaker;
+import pro.sky.telegrambot.services.MessageService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-
+import static pro.sky.telegrambot.services.MessageService.*;
 import static pro.sky.telegrambot.constants.Constants.*;
 import static pro.sky.telegrambot.keyboards.KeyboardMaker.*;
 
@@ -24,11 +25,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Autowired
     private TelegramBot telegramBot;
     /**
-     * <br>Флажок {@link TelegramBotUpdatesListener#isChosenCat} используется для ветвления меню, в зависимости от того,
+     * <br>Флажок {@link TelegramBotUpdatesListener#isCatChosen} используется для ветвления меню, в зависимости от того,
      * какой тип приюта({@value   pro.sky.telegrambot.constants.Constants#BUTTON_CAT_SHELTER} или
      * #{@value  pro.sky.telegrambot.constants.Constants#BUTTON_DOG_SHELTER}) выбран.</br>
      */
-    private static boolean isChosenCat;
+    private static boolean isCatChosen;
 
     @PostConstruct
     public void init() {
@@ -51,25 +52,37 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 switch (update.callbackQuery().data()) {
                     case BUTTON_CAT_SHELTER://меню 2
                         this.buttonReact(update, keyboardUserRequest(), MESSAGE_CHOOSE_MENU_OPT);
-                        isChosenCat = true;
+                        isCatChosen = true;
                         break;
                     case BUTTON_DOG_SHELTER://меню 2
                         this.buttonReact(update, keyboardUserRequest(), MESSAGE_CHOOSE_MENU_OPT);
-                        isChosenCat = false;
+                        isCatChosen = false;
                         break;
                     case BUTTON_SHELTER_INFO://меню 2.1
                         this.buttonReact(update, keyboardNewUserConsult(), MESSAGE_NEW_USER_CONSULT);
                         break;
+                    case BUTTON_SHELTER_ABOUT://меню 2.1.1
+                        this.buttonReact(update, MessageService.getMessage(BUTTON_SHELTER_ABOUT));
+                        break;
+                    case BUTTON_GET_SCHEDULE_ADDRESS://меню 2.1.2
+                        this.buttonReact(update, MessageService.getMessage(BUTTON_GET_SCHEDULE_ADDRESS));
+                        break;
+                    case BUTTON_MAKING_PASS://меню 2.1.3
+                        this.buttonReact(update, MessageService.getMessage(BUTTON_MAKING_PASS));
+                        break;
+                    case BUTTON_SAFETY_RULES://меню 2.1.4
+                        this.buttonReact(update, MessageService.getMessage(BUTTON_SAFETY_RULES));
+                        break;
+
                     case BUTTON_HOW_TO_GET_ANIMAL://меню 2.2
-                        this.buttonReact(update, keyboardCandidateConsult(), MESSAGE_PET_LEADING_MENU);
+                        this.buttonReact(update, keyboardCandidateConsult(), MESSAGE_PET_OWNER_CONSULTING);
                         break;
                     case BUTTON_SEND_REPORT: //меню 2.3
-//                        buttonReact(update, keyboardCatLeading(), MESSAGE_PET_LEADING_MENU);
-//                        this.flagPetSeparator(update, keyboardCatLeading(), keyboardDogLeading(), MESSAGE_PET_LEADING_MENU);
+                        buttonReact(update, keyboardPetLeading(), MESSAGE_PET_LEADING_MENU);
                         break;
-//                    case BUTTON_CALL_VOLUNTEER:
-//                        this.buttonReact(update, callVolunteer(), MESSAGE_CHOOSE_MENU_OPT);
-//                        break;
+                    case BUTTON_CALL_VOLUNTEER: //меню 2.4
+                        this.buttonReact(update, BTN_REACT_CALL_VOLUNTEER);
+                        break;
                 }
             } else if (update.message().text() != null && update.callbackQuery() == null) {
                 switch (update.message().text()) {
@@ -79,7 +92,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 }
             }
         });
-        log.info("isChosenCat = {}", isChosenCat);
+        log.info("isChosenCat = {}", isCatChosen);
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
     }
 
@@ -90,6 +103,25 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         telegramBot.execute(message.replyMarkup(keyboard));
         deletePreviousMessage(update.callbackQuery().message(), chatId);
     }
+
+    private void buttonReact(Update update, String textMessage) {
+        log.info("buttonReact Запущен");
+        Long chatId = update.callbackQuery().message().chat().id();
+        SendMessage message = new SendMessage(chatId, textMessage).parseMode(ParseMode.HTML);
+        telegramBot.execute(message);
+        deletePreviousMessage(update.callbackQuery().message(), chatId);
+    }
+
+    private void buttonReactMessagePhoto(Update update, String textMessage) {
+        log.info("buttonReact Запущен");
+        Long chatId = update.callbackQuery().message().chat().id();
+        SendMessage message = new SendMessage(chatId, textMessage).parseMode(ParseMode.HTML);
+        telegramBot.execute(message);
+        telegramBot.execute(MessageService.sendPhoto(update));
+        deletePreviousMessage(update.callbackQuery().message(), chatId);
+    }
+
+
 
     private void startCommandReact(Update update) {
         log.info("startCommandReact Запущен");
@@ -105,7 +137,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         log.info("сообщение удалено ", telegramBot.execute(deleteMessage));
     }
 
-    public static boolean isChosenCat() {
-        return isChosenCat;
+    public static boolean isCatChosen() {
+        return isCatChosen;
     }
 }

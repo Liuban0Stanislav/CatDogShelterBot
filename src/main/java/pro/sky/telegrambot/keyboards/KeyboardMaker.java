@@ -6,6 +6,10 @@ import com.pengrad.telegrambot.model.request.Keyboard;
 import lombok.extern.slf4j.Slf4j;
 import pro.sky.telegrambot.listener.TelegramBotUpdatesListener;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import static pro.sky.telegrambot.constants.Constants.*;
 
 /**
@@ -100,27 +104,51 @@ public class KeyboardMaker extends Keyboard {
      * <li>{@value pro.sky.telegrambot.constants.Constants#BUTTON_REFUSAL_REASON}</li>
      * <li>{@value pro.sky.telegrambot.constants.Constants#BUTTON_CONTACTS}</li>
      * <li>{@value pro.sky.telegrambot.constants.Constants#BUTTON_CALL_VOLUNTEER}</li>
-     * Метод делает различие между кошками и собаками опираясь на значение флажка {@link TelegramBotUpdatesListener#isChosenCat()}
+     * Метод делает различие между кошками и собаками опираясь на значение флажка {@link TelegramBotUpdatesListener#isCatChosen()}
+     *
      * @return Keyboard
      */
     public static Keyboard keyboardCandidateConsult() {
         log.info("keyboardCandidateConsult создана");
         InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
 
-        keyboard.addRow(new InlineKeyboardButton(BUTTON_MEET_PET_RULES).callbackData(BUTTON_MEET_PET_RULES));
-        keyboard.addRow(new InlineKeyboardButton(BUTTON_DOCS_LIST).callbackData(BUTTON_DOCS_LIST));
-        keyboard.addRow(new InlineKeyboardButton(BUTTON_TRANSPORT_RECOM).callbackData(BUTTON_TRANSPORT_RECOM));
-        keyboard.addRow(new InlineKeyboardButton(BUTTON_PUPPY_KITTY_HOME_ARRANGEMENT).callbackData(BUTTON_PUPPY_KITTY_HOME_ARRANGEMENT));
-        keyboard.addRow(new InlineKeyboardButton(BUTTON_PET_HOME_ARRANGEMENT).callbackData(BUTTON_PET_HOME_ARRANGEMENT));
-        keyboard.addRow(new InlineKeyboardButton(BUTTON_DISABLED_PET_RECOM).callbackData(BUTTON_DISABLED_PET_RECOM));
+        List<String> allButtons = new ArrayList<>(List.of(
+                BUTTON_MEET_PET_RULES,
+                BUTTON_DOCS_LIST,
+                BUTTON_TRANSPORT_RECOM,
+                BUTTON_PUPPY_KITTY_HOME_ARRANGEMENT,
+                BUTTON_PET_HOME_ARRANGEMENT,
+                BUTTON_DISABLED_PET_RECOM
+        ));
+        List<String> dogButtons = new ArrayList<>(List.of(
+                BUTTON_PRIMARY_DOG_CONTACT,
+                BUTTON_CYNOLOGIST_CONTACT,
+                BUTTON_REFUSAL_REASON,
+                BUTTON_CONTACTS,
+                BUTTON_CALL_VOLUNTEER
+        ));
+        //добавляем первые 6 кнопок меню, которые подходят всем животным
+        allButtons.stream()
+                .map(buttonName -> keyboard.addRow(new InlineKeyboardButton(buttonName).callbackData(buttonName)))
+                .filter(buttonName -> !TelegramBotUpdatesListener.isCatChosen())
+                .collect(Collectors.toList());
+        //добавляем кнопки, которые подходят только владельцам собак
+        dogButtons.stream()
+                .filter(buttonName -> !TelegramBotUpdatesListener.isCatChosen())
+                .map(buttonName -> keyboard.addRow(new InlineKeyboardButton(buttonName).callbackData(buttonName)))
+                .collect(Collectors.toList());
 
-        if (!TelegramBotUpdatesListener.isChosenCat()) {
-            keyboard.addRow(new InlineKeyboardButton(BUTTON_PRIMARY_DOG_CONTACT).callbackData(BUTTON_PRIMARY_DOG_CONTACT));
-            keyboard.addRow(new InlineKeyboardButton(BUTTON_CYNOLOGIST_CONTACT).callbackData(BUTTON_CYNOLOGIST_CONTACT));
-            keyboard.addRow(new InlineKeyboardButton(BUTTON_REFUSAL_REASON).callbackData(BUTTON_REFUSAL_REASON));
-            keyboard.addRow(new InlineKeyboardButton(BUTTON_CONTACTS).callbackData(BUTTON_CONTACTS));
-            keyboard.addRow(new InlineKeyboardButton(BUTTON_CALL_VOLUNTEER).callbackData(BUTTON_CALL_VOLUNTEER));
-        }
+        return keyboard;
+    }
+
+    public static Keyboard keyboardPetLeading() {
+        log.info("keyboardPetLeading создана");
+        InlineKeyboardMarkup keyboard = new InlineKeyboardMarkup();
+
+        keyboard.addRow(
+                new InlineKeyboardButton(BUTTON_CREATE_REPORT).callbackData(BUTTON_CREATE_REPORT),
+                new InlineKeyboardButton(BUTTON_CALL_VOLUNTEER).callbackData(BUTTON_CALL_VOLUNTEER));
+
         return keyboard;
     }
 }

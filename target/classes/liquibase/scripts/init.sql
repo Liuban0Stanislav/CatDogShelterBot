@@ -15,7 +15,7 @@ create table shelters
     id                   BIGINT primary key,
     about                TEXT,
     address              TEXT,
-    route_map            BYTEA,
+    route_map            BYTE[],
     work_time            TEXT,
     territory_pass       TEXT,
     security_phone       TEXT,
@@ -29,6 +29,7 @@ create table clients
     id           BIGINT primary key,
     first_name   TEXT NOT NULL,
     last_name    TEXT NOT NULL,
+    telegram_id  BIGINT NOT NULL,
     telegram_id  BIGINT NOT NULL,
     phone        TEXT
 );
@@ -50,7 +51,7 @@ create table reports
     date_report DATE NOT NULL,
     client_id   BIGINT NOT NULL,
     animal_id   BIGINT NOT NULL,
-    photo       BYTEA NOT NULL,
+    phote       BYTE[] NOT NULL,
     diet        TEXT NOT NULL,
     health      TEXT NOT NULL,
     behavior    TEXT NOT NULL

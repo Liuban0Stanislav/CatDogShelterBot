@@ -15,7 +15,7 @@ import pro.sky.telegrambot.services.MessageService;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
-import static pro.sky.telegrambot.services.MessageService.*;
+
 import static pro.sky.telegrambot.constants.Constants.*;
 import static pro.sky.telegrambot.keyboards.KeyboardMaker.*;
 
@@ -24,6 +24,7 @@ import static pro.sky.telegrambot.keyboards.KeyboardMaker.*;
 public class TelegramBotUpdatesListener implements UpdatesListener {
     @Autowired
     private TelegramBot telegramBot;
+
     /**
      * <br>Флажок {@link TelegramBotUpdatesListener#isCatChosen} используется для ветвления меню, в зависимости от того,
      * какой тип приюта({@value   pro.sky.telegrambot.constants.Constants#BUTTON_CAT_SHELTER} или
@@ -40,6 +41,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * Метод используется дла получения updates. Создания и управления меню бота.
      * <br>Меню создаются с использованием клавиатур класса {@link KeyboardMaker}</br>
      * <br>Константы принадлежат классу {@link pro.sky.telegrambot.constants.Constants}</br>
+     *
      * @param updates
      * @return int
      */
@@ -47,8 +49,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     public int process(List<Update> updates) {
         updates.forEach(update -> {
 //            log.info("Processing update: {}", update);
-            log.info("---------------------------------------------------------------------------");
+            log.info("-----------------------------------------------------------------");
+
             if (update.callbackQuery() != null && update.message() == null) {
+                log.info("блок клавиатурных сообщений");
                 switch (update.callbackQuery().data()) {
                     case BUTTON_CAT_SHELTER://меню 2
                         this.buttonReact(update, keyboardUserRequest(), MESSAGE_CHOOSE_MENU_OPT);
@@ -73,6 +77,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     case BUTTON_SAFETY_RULES://меню 2.1.4
                         this.buttonReact(update, MessageService.getMessage(BUTTON_SAFETY_RULES));
                         break;
+                    case BUTTON_CONTACTS://меню 2.1.5
+                        this.buttonReact(update, BTN_REACT_CONTACTS_MESSAGE, BTN_REACT_CONTACTS_FORM_EXAMPLE);
+                        break;
 
                     case BUTTON_HOW_TO_GET_ANIMAL://меню 2.2
                         this.buttonReact(update, keyboardCandidateConsult(), MESSAGE_PET_OWNER_CONSULTING);
@@ -85,10 +92,16 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         break;
                 }
             } else if (update.message().text() != null && update.callbackQuery() == null) {
+                log.info("блок текстовых сообщений");
                 switch (update.message().text()) {
                     case COMMAND_START://меню 1
+                        log.info("блок команды старт");
                         this.startCommandReact(update);
                         break;
+                }
+                if (update.message() != null && update.message().text().matches("^[A-Za-z0-9()+-\\s:]+(\\n|\\r\\n)*(?!\\/start)")) {
+                    log.info("блок регулярки");
+                    MessageService.getUserContactsForm(update);
                 }
             }
         });
@@ -101,7 +114,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         Long chatId = update.callbackQuery().message().chat().id();
         SendMessage message = new SendMessage(chatId, textMessage);
         telegramBot.execute(message.replyMarkup(keyboard));
-        deletePreviousMessage(update.callbackQuery().message(), chatId);
+//        deletePreviousMessage(update.callbackQuery().message(), chatId);
     }
 
     private void buttonReact(Update update, String textMessage) {
@@ -109,19 +122,19 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         Long chatId = update.callbackQuery().message().chat().id();
         SendMessage message = new SendMessage(chatId, textMessage).parseMode(ParseMode.HTML);
         telegramBot.execute(message);
-        deletePreviousMessage(update.callbackQuery().message(), chatId);
+//        deletePreviousMessage(update.callbackQuery().message(), chatId);
     }
 
-    private void buttonReactMessagePhoto(Update update, String textMessage) {
+    private void buttonReact(Update update, String textMessage1, String textMessage2) {
         log.info("buttonReact Запущен");
         Long chatId = update.callbackQuery().message().chat().id();
-        SendMessage message = new SendMessage(chatId, textMessage).parseMode(ParseMode.HTML);
-        telegramBot.execute(message);
-        telegramBot.execute(MessageService.sendPhoto(update));
-        deletePreviousMessage(update.callbackQuery().message(), chatId);
+        SendMessage message1 = new SendMessage(chatId, textMessage1).parseMode(ParseMode.HTML);
+        SendMessage message2 = new SendMessage(chatId, textMessage2).parseMode(ParseMode.HTML);
+        telegramBot.execute(message1);
+        telegramBot.execute(message2);
+//        telegramBot.execute(MessageService.sendPhoto(update));
+//        deletePreviousMessage(update.callbackQuery().message(), chatId);
     }
-
-
 
     private void startCommandReact(Update update) {
         log.info("startCommandReact Запущен");
@@ -136,6 +149,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         DeleteMessage deleteMessage = new DeleteMessage(chatId, messageId);
         log.info("сообщение удалено ", telegramBot.execute(deleteMessage));
     }
+
 
     public static boolean isCatChosen() {
         return isCatChosen;

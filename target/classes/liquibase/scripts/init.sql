@@ -50,7 +50,7 @@ create table reports
     date_report DATE NOT NULL,
     client_id   BIGINT NOT NULL,
     animal_id   BIGINT NOT NULL,
-    phote       BYTEA NOT NULL,
+    photo       BYTEA NOT NULL,
     diet        TEXT NOT NULL,
     health      TEXT NOT NULL,
     behavior    TEXT NOT NULL

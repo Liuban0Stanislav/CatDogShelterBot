@@ -49,6 +49,16 @@ public class MessageService {
         return SOMETHING_WENT_WRONG;
     }
 
+    public static String getUserContactsForm(Update update){
+        log.info("getUserContactsForm");
+        //кнопка 2.1.5
+       boolean isFirstNameFormExist = update.message().text().contains("имя:");
+       boolean isLastNameFormExist = update.message().text().contains("фамилия:");
+       boolean isPhoneFormExist = update.message().text().contains("телефон:");
+       log.info("имя: {}\nфамилия: {}\nтелефон: {}",isFirstNameFormExist, isLastNameFormExist, isPhoneFormExist);
+       return"jr";
+    }
+
 
 
     public static SendPhoto sendPhoto(Update update){

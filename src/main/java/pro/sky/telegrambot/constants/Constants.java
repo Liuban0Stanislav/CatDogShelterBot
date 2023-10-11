@@ -129,11 +129,8 @@ public class Constants {
                                                             "ты можешь оставить нам свои контакты.\n" +
                                                             "Скопируй форму из сообщения ниже,\n" +
                                                             "заполни и отправь ее нам.";
-    public static final String BTN_REACT_CONTACTS_FORM_EXAMPLE = "<b>имя: </b>\n" +
-                                                        "<b>фамилия: </b>\n" +
-                                                        "<b>телефон: </b>";
-    public static final String BTN_REACT_CONTACTS_FORM =   "(имя: )\\b[A-Za-z][a-zа-яё]+(?: [A-Za-z][a-zа-яё]+)*(?:[.,;]|$)\n" +
-                                                            "(фамилия: )\\b[A-Za-z][a-zа-яё]+(?: [A-Za-z][a-zа-яё]+)*(?:[.,;]|$)\n" +
-                                                            "(телефон:)\\+?7\\(\\d{3}\\)\\s*\\d{3}[-.]\\s*\\d{2}[-.]\\d{2}\\b|\\d{10}|\\d{4}\\w\\d{7} ";
+    public static final String BTN_REACT_CONTACTS_FIRST_NAME = "Ведите ваше имя в сообщении ниже.";
+    public static final String BTN_REACT_CONTACTS_LAST_NAME = "Ведите вашу фамилию.";
+    public static final String BTN_REACT_CONTACTS_PHONE = "Ведите ваш номер телефона.\nв формате: +7(ХХХ)ХХХ-ХХ-ХХ";
 
 }

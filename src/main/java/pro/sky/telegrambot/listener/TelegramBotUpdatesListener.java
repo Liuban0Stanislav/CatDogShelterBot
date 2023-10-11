@@ -8,7 +8,6 @@ import com.pengrad.telegrambot.model.request.*;
 import com.pengrad.telegrambot.request.BaseRequest;
 import com.pengrad.telegrambot.request.DeleteMessage;
 import com.pengrad.telegrambot.request.SendMessage;
-import lombok.Delegate;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +15,6 @@ import pro.sky.telegrambot.keyboards.KeyboardMaker;
 import pro.sky.telegrambot.services.MessageService;
 
 import javax.annotation.PostConstruct;
-import javax.persistence.criteria.CriteriaBuilder;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,9 +34,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private Map<Integer, Long> messagesHistory = new HashMap<>();
 
     /**
-     * <br>Флажок {@link TelegramBotUpdatesListener#isCatChosen} используется для ветвления меню, в зависимости от того,
+     * Флажок {@link TelegramBotUpdatesListener#isCatChosen} используется для ветвления меню, в зависимости от того,
      * какой тип приюта({@value   pro.sky.telegrambot.constants.Constants#BUTTON_CAT_SHELTER} или
-     * #{@value  pro.sky.telegrambot.constants.Constants#BUTTON_DOG_SHELTER}) выбран.</br>
+     * #{@value  pro.sky.telegrambot.constants.Constants#BUTTON_DOG_SHELTER}) выбран.
      */
     private static boolean isCatChosen;
 
@@ -88,7 +86,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         this.buttonReact(update, MessageService.getMessage(BUTTON_SAFETY_RULES));
                         break;
                     case BUTTON_CONTACTS://меню 2.1.5
-                        this.buttonReact(update, BTN_REACT_CONTACTS_MESSAGE, BTN_REACT_CONTACTS_FORM_EXAMPLE);
+                        this.buttonReact(update, BTN_REACT_CONTACTS_MESSAGE, BTN_REACT_CONTACTS_FIRST_NAME);
                         break;
 
                     case BUTTON_HOW_TO_GET_ANIMAL://меню 2.2
@@ -154,7 +152,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * Метод создает реакцию на нажатие кнопки на клавиатуре и выводит текстовое сообщение.
      * <br>Описание работы метода: </br>
      * <li>метод находит и присваивает в переменные id чата и id сообщения;</li>
-     * <li>метод создает сообщение использую id чата и текст, который подается в метод как параметр;</li>
+     * <li>метод создает сообщение используя id чата и текст, который подается в метод как параметр <b>textMessage</b>;</li>
      * <li>метод отправляет сообщение при помощи метода {@link TelegramBot#execute(BaseRequest)}</li>
      * <li>той же строкой метод присваивает в переменную значение id отправляемого
      * сообщения <i><b>sentMessageId</b></i></li>

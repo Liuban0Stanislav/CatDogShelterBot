@@ -126,14 +126,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     log.info("блок ввода имени");
                     String firstName = this.saveContacts(update, BTN_REACT_CONTACTS_FIRST_NAME, BTN_REACT_CONTACTS_LAST_NAME);
                     client.setFirstName(firstName);
-                    System.out.println(client);
+                    log.info("сохранение имени в объект client");
+                    log.info("{}", client);
                 }
                 //Если пользователь хочет оставить контакты - получение фамилии
                 if(isHistoryContainsText(BTN_REACT_CONTACTS_LAST_NAME)){
                     log.info("блок ввода фамилии");
                     String lastName = this.saveContacts(update, BTN_REACT_CONTACTS_LAST_NAME, BTN_REACT_CONTACTS_PHONE);
                     client.setLastName(lastName);
-                    System.out.println(client);
+                    log.info("{}", client);
                 }
                 //Если пользователь хочет оставить контакты - получение телефона
                 if(isHistoryContainsText(BTN_REACT_CONTACTS_PHONE)){
@@ -142,7 +143,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     client.setPhone(phoneNum);
                     client.setChatId(update.message().chat().id());
                     client.setTelegramId(update.message().from().id());
-                    System.out.println(client);
+                    log.info("{}", client);
                 }
             }
         });
@@ -212,9 +213,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param update
      */
     public void buttonContactsReact(Update update) {
-        log.info("buttonReact Запущен");
+        log.info("--------------------------------------------");
+        log.info("buttonContactsReact Запущен");
         this.buttonReact(update, BTN_REACT_CONTACTS_MESSAGE);
         this.buttonReact(update, BTN_REACT_CONTACTS_FIRST_NAME);
+        log.info("--------------------------------------------");
     }
 //-----------------------------------------------------------------------------------------
     /**
@@ -241,7 +244,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param preText текст предыдущего сообщения, для сравнения.
      */
     public String saveContacts(Update update, String preText, String nextMessageText) {
-        log.info("saveFirstLastName запущен");
+        log.info("saveContacts запущен");
         boolean condition = isMessageEqualsPrevious(update, preText);
         log.info("{}", condition);
         String name = null;
@@ -249,26 +252,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             name = update.message().text();
             name = nameProcessor(name);
             log.info("получаем имя или фамилию - {}", name);
-            log.info("client.setFirstName() сработал" );
             sendMessage(update, nextMessageText);
         }
         return name;
     }
-
-//    public String savePhoneNum(Update update, String preText, String nextMessageText) {
-//        log.info("savePhoneNum запущен");
-//        boolean condition = isMessageEqualsPrevious(update, preText);
-//        log.info("{}", condition);
-//        String name = null;
-//        if (condition) {
-//            name = update.message().text();
-//            name = nameProcessor(name);
-//            log.info("получаем имя или фамилию - {}", name);
-//            log.info("client.setFirstName() сработал" );
-//            sendMessage(update, nextMessageText);
-//        }
-//        return name;
-//    }
 
     /**
      * Метод проверяет, был ли в предыдущем сообщении текст подаваемый как параметр.
@@ -336,7 +323,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param textMessage текст который надо отправить в чат.
      */
     private void sendMessage(Update update, String textMessage) {
-        log.info("startCommandReact Запущен");
+        log.info("sendMessage Запущен");
         //получение id сообщения и чата
         Long chatId = update.message().chat().id();
         //создание сообщения
@@ -378,17 +365,22 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      */
     private void startCommandReact(Update update) {
         deleteAllPreviousMessages();
+        log.info("+++++++++++++++++++++++++++++++++++++");
         log.info("startCommandReact Запущен");
         //получение id сообщения и чата
         Long chatId = update.message().chat().id();
+        log.info("chatId = {}", chatId);
         Integer messageId = update.message().messageId();
+        log.info("messageId = {}", messageId);
         //создание сообщения
         SendMessage message = new SendMessage(chatId, MESSAGE_HELLO);
+        log.info("start-message = {}", message);
         //бот отправляет сообщение в чат и одновременно записываем в переменную id этого сообщения
         Message sentMessageId = telegramBot.execute(message.replyMarkup(KeyboardMaker.keyboardCatDog())).message();
         //записываем полученное и отправленное сообщения в историю сообщений
         messageHistory.add(update.message());
         messageHistory.add(sentMessageId);
+        log.info("+++++++++++++++++++++++++++++++++++++");
     }
 
     /**

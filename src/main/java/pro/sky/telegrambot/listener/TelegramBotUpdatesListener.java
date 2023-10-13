@@ -128,16 +128,18 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     client.setFirstName(firstName);
                     log.info("сохранение имени в объект client");
                     log.info("{}", client);
+                    getHistory();
                 }
                 //Если пользователь хочет оставить контакты - получение фамилии
-                if(isHistoryContainsText(BTN_REACT_CONTACTS_LAST_NAME)){
+                if(isHistoryContainsText(BTN_REACT_CONTACTS_LAST_NAME) && update.message().text().isEmpty()){
                     log.info("блок ввода фамилии");
                     String lastName = this.saveContacts(update, BTN_REACT_CONTACTS_LAST_NAME, BTN_REACT_CONTACTS_PHONE);
                     client.setLastName(lastName);
                     log.info("{}", client);
+                    getHistory();
                 }
                 //Если пользователь хочет оставить контакты - получение телефона
-                if(isHistoryContainsText(BTN_REACT_CONTACTS_PHONE)){
+                if(isHistoryContainsText(BTN_REACT_CONTACTS_PHONE) && !update.message().text().isEmpty()){
                     log.info("блок ввода номера телефона");
                     String phoneNum = this.saveContacts(update, BTN_REACT_CONTACTS_PHONE, BTN_REACT_THANKING);
                     client.setPhone(phoneNum);
@@ -244,6 +246,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param preText текст предыдущего сообщения, для сравнения.
      */
     public String saveContacts(Update update, String preText, String nextMessageText) {
+        log.info("////////////////////////////////////");
         log.info("saveContacts запущен");
         boolean condition = isMessageEqualsPrevious(update, preText);
         log.info("{}", condition);
@@ -252,8 +255,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             name = update.message().text();
             name = nameProcessor(name);
             log.info("получаем имя или фамилию - {}", name);
+            //добавление фамилии, имени или телефона в историю сообщений
+            messageHistory.add(update.message());
             sendMessage(update, nextMessageText);
+
+
         }
+        log.info("////////////////////////////////////");
         return name;
     }
 
@@ -419,10 +427,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     /**
-     * Метод возвращает <b>true</b>, если заданный текст присутствует в {@link TelegramBotUpdatesListener#messageHistory}
+     * Метод возвращает <b>true</b>, если заданный текст присутствует в
+     * {@link TelegramBotUpdatesListener#messageHistory}.
      * Метод вернет <b>false</b>, если текст не содержится в коллекции.
-     * @param text тест с которым, метод сравнивает содержимое своих сообщений.
-     * @return
+     * @param text текст с которым, метод сравнивает содержимое сообщений коллекции истории сообщений.
+     * @return boolean
      */
     private boolean isHistoryContainsText(String text){
         for(Message message: messageHistory){
@@ -447,7 +456,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /**
      * Геттер поля {@link TelegramBotUpdatesListener#isCatChosen}
      *
-     * @return
+     * @return boolean - значение поля isCatChosen
      */
     public static boolean isCatChosen() {
         return isCatChosen;

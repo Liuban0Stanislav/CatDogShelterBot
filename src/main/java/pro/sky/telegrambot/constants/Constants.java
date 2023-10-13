@@ -130,6 +130,6 @@ public class Constants {
     public static final String BTN_REACT_CONTACTS_FIRST_NAME = "Ведите ваше имя...";
     public static final String BTN_REACT_CONTACTS_LAST_NAME = "Ведите вашу фамилию...";
     public static final String BTN_REACT_CONTACTS_PHONE = "Ведите ваш номер телефона.\nв формате: +7(ХХХ)ХХХ-ХХ-ХХ";
-    public static final String BTN_REACT_THANKING = "Спасибо! :-)";
+    public static final String BTN_REACT_THANKING = "Спасибо!";
 
 }

@@ -70,8 +70,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     @Override
     public int process(List<Update> updates) {
         updates.forEach(update -> {
-//            log.info("Processing update: {}", update);
-            log.info("-----------------------------------------------------------------");
+            log.info("Processing update: {}", update);
+//            log.info("-----------------------------------------------------------------");
 
             if (update.callbackQuery() != null && update.message() == null) {
                 log.info("блок клавиатурных сообщений");
@@ -126,26 +126,35 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     log.info("блок ввода имени");
                     String firstName = this.saveContacts(update, BTN_REACT_CONTACTS_FIRST_NAME, BTN_REACT_CONTACTS_LAST_NAME);
                     client.setFirstName(firstName);
-                    log.info("сохранение имени в объект client");
+//                    String firstName = getContacts(update, BTN_REACT_CONTACTS_FIRST_NAME);
+//                    client.setFirstName(firstName);
+//                    sendMessage(update, BTN_REACT_CONTACTS_LAST_NAME);
                     log.info("{}", client);
                     getHistory();
                 }
                 //Если пользователь хочет оставить контакты - получение фамилии
-                if(isHistoryContainsText(BTN_REACT_CONTACTS_LAST_NAME) && update.message().text().isEmpty()){
+                if (isHistoryContainsText(BTN_REACT_CONTACTS_LAST_NAME)/* && update.message().text().isEmpty()*/) {
                     log.info("блок ввода фамилии");
                     String lastName = this.saveContacts(update, BTN_REACT_CONTACTS_LAST_NAME, BTN_REACT_CONTACTS_PHONE);
                     client.setLastName(lastName);
+//                    String lastName = getContacts(update, BTN_REACT_CONTACTS_LAST_NAME);
+//                    client.setLastName(lastName);
+//                    sendMessage(update, BTN_REACT_CONTACTS_PHONE);
                     log.info("{}", client);
                     getHistory();
                 }
                 //Если пользователь хочет оставить контакты - получение телефона
-                if(isHistoryContainsText(BTN_REACT_CONTACTS_PHONE) && !update.message().text().isEmpty()){
+                if (isHistoryContainsText(BTN_REACT_CONTACTS_PHONE)/* && update.message().text().isEmpty()*/) {
                     log.info("блок ввода номера телефона");
                     String phoneNum = this.saveContacts(update, BTN_REACT_CONTACTS_PHONE, BTN_REACT_THANKING);
                     client.setPhone(phoneNum);
+//                    String phone = getContacts(update, BTN_REACT_CONTACTS_PHONE);
+//                    client.setPhone(phone);
+//                    sendMessage(update, BTN_REACT_THANKING);
                     client.setChatId(update.message().chat().id());
                     client.setTelegramId(update.message().from().id());
                     log.info("{}", client);
+                    getHistory();
                 }
             }
         });
@@ -222,6 +231,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         log.info("--------------------------------------------");
     }
 //-----------------------------------------------------------------------------------------
+
     /**
      * Метод принимает имя и фамилию от пользователя. После чего заполняет полученными данными объект {@link Client},
      * Заполненный объект сохраняется в БД, в соответствующей таблице.
@@ -268,6 +278,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /**
      * Метод проверяет, был ли в предыдущем сообщении текст подаваемый как параметр.
      * Если такой текст выводился в сообщении, то метод возвращает <b>true</b>.
+     *
      * @param update
      * @param preText тест с которым нужно сравнить текст из предыдущего сообщения.
      * @return
@@ -291,14 +302,16 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         return false;
     }
 
+
     /**
      * Метод приводит имя или фамилию к надлежащему виду.
      * Убирает случайные знаки, убирает пробелы, делает первую букву имени заглавной.
      * <br>Пример: Василий, Петров, Катерина, Дроздова и т.д.</br>
+     *
      * @param name как параметр подается имя или фамилия
      * @return - то же слово, но приведенное к формату записи имен и фамилий
      */
-    public String nameProcessor(String name){
+    public String nameProcessor(String name) {
         log.info("имя или фамилия БЫЛО: {}", name);
 
         name = name.replace(",", "")
@@ -315,10 +328,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /**
      * Метод делает заглавной первую букву слова.
+     *
      * @param word строка класса {@link String}
      * @return строка класса {@link String} но с заглавной первой буквой.
      */
-    public static String toUpperCase(String word){
+    public static String toUpperCase(String word) {
         char[] chars = word.toCharArray();
         chars[0] = Character.toUpperCase(chars[0]);
         word = String.valueOf(chars);
@@ -327,6 +341,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /**
      * Метод отправляет сообщение в чат с заданным текстом.
+     *
      * @param update
      * @param textMessage текст который надо отправить в чат.
      */
@@ -344,10 +359,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 
     /**
      * Метод удаляет заданное количество предыдущих сообщений
+     *
      * @param update
      * @param quantityToDelete количество сообщений которые нужно удалить
      */
-    public void deletePreviousMessages(Update update, int quantityToDelete){
+    public void deletePreviousMessages(Update update, int quantityToDelete) {
         Long chatId = update.message().chat().id();
         for (int i = 2; i <= quantityToDelete; i++) {
             int previousMessageIndex = messageHistory.size() - i;
@@ -395,7 +411,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * Метод для удаления каждого отдельного сообщения, после нажатия следующей кнопки.
      *
      * @param message сообщение
-     * @param chatId id чата
+     * @param chatId  id чата
      */
 
     private void deletePreviousMessage(Message message, Long chatId) {
@@ -430,11 +446,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * Метод возвращает <b>true</b>, если заданный текст присутствует в
      * {@link TelegramBotUpdatesListener#messageHistory}.
      * Метод вернет <b>false</b>, если текст не содержится в коллекции.
+     *
      * @param text текст с которым, метод сравнивает содержимое сообщений коллекции истории сообщений.
      * @return boolean
      */
-    private boolean isHistoryContainsText(String text){
-        for(Message message: messageHistory){
+    private boolean isHistoryContainsText(String text) {
+        for (Message message : messageHistory) {
             if (message.text().equals(text)) {
                 return true;
             }
@@ -447,7 +464,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * этот метод в разные части кода, можно видеть какие сообщения и на каком
      * этапе попадают в лист для дальнейшего возможного использования.
      */
-    public void getHistory(){
+    public void getHistory() {
         messageHistory.stream()
                 .map(message -> message.text())
                 .forEach(text -> System.out.println(text));
@@ -460,5 +477,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      */
     public static boolean isCatChosen() {
         return isCatChosen;
+    }
+
+
+    public String getContacts(Update update, String name) {
+        String updateText = update.message().text();
+        if (isHistoryContainsText(name)) {
+            updateText = nameProcessor(updateText);
+            messageHistory.add(update.message());
+        }
+        return updateText;
     }
 }

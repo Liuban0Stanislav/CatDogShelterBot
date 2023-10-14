@@ -115,6 +115,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         break;
                 }
             } else if (update.message().text() != null && update.callbackQuery() == null) {
+
                 log.info("блок текстовых сообщений");
                 if (update.message().text().equals(COMMAND_START)) {//меню 1
                     log.info("блок команды старт");
@@ -122,35 +123,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     this.startCommandReact(update);
                 }
                 //Если пользователь хочет оставить контакты - получение имени
-                if (isHistoryContainsText(BTN_REACT_CONTACTS_FIRST_NAME)) {
+                if (isMessageEqualsPrevious(update, BTN_REACT_CONTACTS_FIRST_NAME)) {
                     log.info("блок ввода имени");
-                    String firstName = this.saveContacts(update, BTN_REACT_CONTACTS_FIRST_NAME, BTN_REACT_CONTACTS_LAST_NAME);
+                    String firstName = this.saveContacts(update, BTN_REACT_CONTACTS_LAST_NAME);
                     client.setFirstName(firstName);
-//                    String firstName = getContacts(update, BTN_REACT_CONTACTS_FIRST_NAME);
-//                    client.setFirstName(firstName);
-//                    sendMessage(update, BTN_REACT_CONTACTS_LAST_NAME);
                     log.info("{}", client);
                     getHistory();
                 }
                 //Если пользователь хочет оставить контакты - получение фамилии
-                if (isHistoryContainsText(BTN_REACT_CONTACTS_LAST_NAME)/* && update.message().text().isEmpty()*/) {
+                if (isMessageEqualsPrevious(update, BTN_REACT_CONTACTS_LAST_NAME)) {
                     log.info("блок ввода фамилии");
-                    String lastName = this.saveContacts(update, BTN_REACT_CONTACTS_LAST_NAME, BTN_REACT_CONTACTS_PHONE);
+                    String lastName = this.saveContacts(update, BTN_REACT_CONTACTS_PHONE);
                     client.setLastName(lastName);
-//                    String lastName = getContacts(update, BTN_REACT_CONTACTS_LAST_NAME);
-//                    client.setLastName(lastName);
-//                    sendMessage(update, BTN_REACT_CONTACTS_PHONE);
                     log.info("{}", client);
                     getHistory();
                 }
                 //Если пользователь хочет оставить контакты - получение телефона
-                if (isHistoryContainsText(BTN_REACT_CONTACTS_PHONE)/* && update.message().text().isEmpty()*/) {
+                if (isMessageEqualsPrevious(update, BTN_REACT_CONTACTS_PHONE)) {
                     log.info("блок ввода номера телефона");
-                    String phoneNum = this.saveContacts(update, BTN_REACT_CONTACTS_PHONE, BTN_REACT_THANKING);
+                    String phoneNum = this.saveContacts(update, BTN_REACT_THANKING);
                     client.setPhone(phoneNum);
-//                    String phone = getContacts(update, BTN_REACT_CONTACTS_PHONE);
-//                    client.setPhone(phone);
-//                    sendMessage(update, BTN_REACT_THANKING);
                     client.setChatId(update.message().chat().id());
                     client.setTelegramId(update.message().from().id());
                     log.info("{}", client);
@@ -255,22 +247,20 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param update
      * @param preText текст предыдущего сообщения, для сравнения.
      */
-    public String saveContacts(Update update, String preText, String nextMessageText) {
+    public String saveContacts(Update update, String nextMessageText) {
         log.info("////////////////////////////////////");
         log.info("saveContacts запущен");
-        boolean condition = isMessageEqualsPrevious(update, preText);
-        log.info("{}", condition);
+//        boolean condition = isMessageEqualsPrevious(update, preText);
+//        log.info("{}", condition);
         String name = null;
-        if (condition) {
+//        if (condition) {
             name = update.message().text();
             name = nameProcessor(name);
             log.info("получаем имя или фамилию - {}", name);
             //добавление фамилии, имени или телефона в историю сообщений
             messageHistory.add(update.message());
             sendMessage(update, nextMessageText);
-
-
-        }
+//        }
         log.info("////////////////////////////////////");
         return name;
     }
@@ -296,7 +286,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         log.info("previousMessageId {}", previousMessageId);
         log.info("Разность = {}", currentMessageId - previousMessageId);
 
-        if (currentMessageId - previousMessageId == 1 && preText.equals(previousMessageText)) {
+        if (preText.equals(previousMessageText) && currentMessageId - previousMessageId == 1) {
             return true;
         }
         return false;
@@ -477,15 +467,5 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      */
     public static boolean isCatChosen() {
         return isCatChosen;
-    }
-
-
-    public String getContacts(Update update, String name) {
-        String updateText = update.message().text();
-        if (isHistoryContainsText(name)) {
-            updateText = nameProcessor(updateText);
-            messageHistory.add(update.message());
-        }
-        return updateText;
     }
 }

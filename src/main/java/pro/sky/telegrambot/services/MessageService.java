@@ -12,7 +12,7 @@ import static pro.sky.telegrambot.listener.TelegramBotUpdatesListener.isCatChose
 @Slf4j
 @Service
 public class MessageService {
-    public String getMessage(String textMessage){
+    public static String getMessage(String textMessage){
         //кнопка 2.1.1
         if(textMessage.equals(BUTTON_SHELTER_ABOUT) && isCatChosen()){
             return BTN_REACT_CAT_SHELTER_ABOUT;

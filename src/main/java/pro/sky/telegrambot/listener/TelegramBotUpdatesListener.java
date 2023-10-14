@@ -89,7 +89,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         this.buttonReact(update, keyboardNewUserConsult(), MESSAGE_NEW_USER_CONSULT);
                         break;
                     case BUTTON_SHELTER_ABOUT://меню 2.1.1
-                        this.buttonReact(update, messageService.getMessage(BUTTON_SHELTER_ABOUT));
+                        this.buttonReact(update, MessageService.getMessage(BUTTON_SHELTER_ABOUT));
                         break;
                     case BUTTON_GET_SCHEDULE_ADDRESS://меню 2.1.2
                         this.buttonReact(update, messageService.getMessage(BUTTON_GET_SCHEDULE_ADDRESS));

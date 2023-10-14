@@ -31,10 +31,11 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final MessageService messageService;
 
     /**
-     * Это поле используется в методе {@link TelegramBotUpdatesListener#saveContacts(Update, String, String)}
-     * для сохранения данных пользователя, которые сам пользователь хочет оставить, переходя по кнопке
+     * Это поле используется для сохранения данных пользователя, которые сам пользователь
+     * хочет оставить, переходя по кнопке
      * {@link pro.sky.telegrambot.constants.Constants#BTN_REACT_CONTACTS_MESSAGE}:
      * <br>{@value pro.sky.telegrambot.constants.Constants#BTN_REACT_CONTACTS_MESSAGE}</br>
+     * Перед сохранением в БД.
      */
     private Client client = new Client();
 
@@ -209,9 +210,9 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     /**
-     * Метод создает реакцию на нажатие кнопки на клавиатуре и выводит два текстовых сообщения.
-     * Одно сообщение с инструкцией о том как заполнять отчет, а второе с формой отчета.
-     * <br>Устройство метода см. {@link TelegramBotUpdatesListener#buttonReact(Update, String)}</br>
+     * Метод создает реакцию на нажатие кнопки ({@value  pro.sky.telegrambot.constants.Constants#BUTTON_CONTACTS})
+     * на клавиатуре и выводит два текстовых сообщения с инструкциями.
+     * <br>Так же см. описание метода {@link TelegramBotUpdatesListener#buttonReact(Update, String)}</br>
      *
      * @param update
      */
@@ -225,42 +226,30 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
 //-----------------------------------------------------------------------------------------
 
     /**
-     * Метод принимает имя и фамилию от пользователя. После чего заполняет полученными данными объект {@link Client},
-     * Заполненный объект сохраняется в БД, в соответствующей таблице.
+     * Метод принимает имя и фамилию или телефон от пользователя.
+     * После чего заполняет полученными данными объект {@link Client}.
      * <br>Алгоритм работы метода следующий:</br>
-     * <li>Получаем id и текст предыдущего сообщения.</li>
-     * <li>Если id сообщения с текстом {@value  pro.sky.telegrambot.constants.Constants#BTN_REACT_CONTACTS_FIRST_NAME}
-     * для имени, а так же с текстом {@value pro.sky.telegrambot.constants.Constants#BTN_REACT_CONTACTS_LAST_NAME}
-     * для фамилии отличается от id нынешнего сообщения на 1,
-     * значит введенное сообщение несет в себе имя или фамилию пользователя. Это условие содержится в методе
-     * {@link TelegramBotUpdatesListener#isMessageEqualsPrevious(Update, String)}.</li>
-     * <li>Если условие (из пункта выше) верно
-     * ({@link TelegramBotUpdatesListener#isMessageEqualsPrevious(Update, String)} == true),
-     * то метод {@link TelegramBotUpdatesListener#nameProcessor(String)}
+     * <li>Получаем имя, фамилию или телефон из update.</li>
+     * <li>Метод {@link TelegramBotUpdatesListener#nameProcessor(String)}
      * приводит имя или фамилию к надлежащему виду. Удаляет лишние символы, пробелы, делает первую букву заглавной.</li>
-     * <li>Далее сеттер присваивает объекту {@link TelegramBotUpdatesListener#client} имя и фамилию.</li>
-     * <li>Метод {@link TelegramBotUpdatesListener#deletePreviousMessages(Update, int)} удаляет из чата необходимое
-     * количество предыдущих сообщений(количество задается в параметре метода).</li>
-     * <li>И наконец, удаленные из чата сообщения так же удаляются из истории сообщений - списка
+     * <li>Сообщение с имененм, фамилией или номером телефона добавляется в историю сообщений
      * {@link TelegramBotUpdatesListener#messageHistory}.</li>
-     *
-     * @param update
-     * @param preText текст предыдущего сообщения, для сравнения.
+     * <li>Метод отправляет пользователю сообщение со следующей инструкцией.</li>
+     * @param update отсюда, берем имя, фамилию или номер телефона
+     * @param nextMessageText текст следующего сообщения.
      */
     public String saveContacts(Update update, String nextMessageText) {
         log.info("////////////////////////////////////");
         log.info("saveContacts запущен");
-//        boolean condition = isMessageEqualsPrevious(update, preText);
-//        log.info("{}", condition);
         String name = null;
-//        if (condition) {
-            name = update.message().text();
-            name = nameProcessor(name);
-            log.info("получаем имя или фамилию - {}", name);
-            //добавление фамилии, имени или телефона в историю сообщений
-            messageHistory.add(update.message());
-            sendMessage(update, nextMessageText);
-//        }
+        //приведение имени к заданному виду перед сохранением в БД
+        name = update.message().text();
+        name = nameProcessor(name);
+        log.info("получаем имя или фамилию - {}", name);
+        //добавление фамилии, имени или телефона в историю сообщений
+        messageHistory.add(update.message());
+        //отправка следующего сообщения с инструкциями по вводу контактов
+        sendMessage(update, nextMessageText);
         log.info("////////////////////////////////////");
         return name;
     }
@@ -268,6 +257,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /**
      * Метод проверяет, был ли в предыдущем сообщении текст подаваемый как параметр.
      * Если такой текст выводился в сообщении, то метод возвращает <b>true</b>.
+     *В условии разность равная 1 означает, что сообщение имеющее заданный текст
+     * было именно предпоследним.
      *
      * @param update
      * @param preText тест с которым нужно сравнить текст из предыдущего сообщения.
@@ -353,6 +344,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param update
      * @param quantityToDelete количество сообщений которые нужно удалить
      */
+    @Deprecated
     public void deletePreviousMessages(Update update, int quantityToDelete) {
         Long chatId = update.message().chat().id();
         for (int i = 2; i <= quantityToDelete; i++) {
@@ -398,12 +390,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     }
 
     /**
-     * Метод для удаления каждого отдельного сообщения, после нажатия следующей кнопки.
+     * Метод для удаления сообщения.
      *
      * @param message сообщение
      * @param chatId  id чата
      */
-
+    @Deprecated
     private void deletePreviousMessage(Message message, Long chatId) {
         Integer messageId = message.messageId();
         DeleteMessage deleteMessage = new DeleteMessage(chatId, messageId);
@@ -424,8 +416,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         log.info("deleteAllPreviousMessages запущен");
 
         for (Message message : messageHistory) {
-            Integer messageId = message.messageId();
             Long chatId = message.chat().id();
+            Integer messageId = message.messageId();
             DeleteMessage deleteMessage = new DeleteMessage(chatId, messageId);
             log.info("сообщение удалено ", telegramBot.execute(deleteMessage));
         }
@@ -440,6 +432,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @param text текст с которым, метод сравнивает содержимое сообщений коллекции истории сообщений.
      * @return boolean
      */
+    @Deprecated
     private boolean isHistoryContainsText(String text) {
         for (Message message : messageHistory) {
             if (message.text().equals(text)) {

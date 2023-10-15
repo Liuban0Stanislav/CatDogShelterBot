@@ -55,3 +55,22 @@ create table reports
     health      TEXT NOT NULL,
     behavior    TEXT NOT NULL
 );
+
+-- changeset PVladimirov:1
+alter table animals
+add foreign key (shelter_id) references shelters (id);
+
+alter table reports
+    add foreign key (animal_id) references animals (id);
+
+alter table adopters
+    add foreign key (animal_id) references animals (id);
+
+alter table adopters
+    add foreign key (shelter_id) references shelters (id);
+
+alter table reports
+    add foreign key (client_id) references clients (id);
+
+alter table adopters
+    add foreign key (client_id) references clients (id);

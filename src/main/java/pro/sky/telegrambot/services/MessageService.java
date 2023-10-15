@@ -2,12 +2,15 @@ package pro.sky.telegrambot.services;
 
 import com.pengrad.telegrambot.model.Update;
 import com.pengrad.telegrambot.request.SendPhoto;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import pro.sky.telegrambot.listener.TelegramBotUpdatesListener;
+
+import java.util.regex.Pattern;
 
 import static pro.sky.telegrambot.constants.Constants.*;
 import static pro.sky.telegrambot.listener.TelegramBotUpdatesListener.isCatChosen;
-
+@Slf4j
+@Service
 public class MessageService {
     public static String getMessage(String textMessage){
         //кнопка 2.1.1
@@ -38,8 +41,15 @@ public class MessageService {
         if(textMessage.equals(BUTTON_SAFETY_RULES) && !isCatChosen()){
             return BTN_REACT_DOG_SAFETY_RULES;
         }
+        //кнопка 2.1.5
+        if(textMessage.equals(BUTTON_CONTACTS)){
+            return BTN_REACT_CONTACTS_MESSAGE;
+        }
+
         return SOMETHING_WENT_WRONG;
     }
+
+
 
     public static SendPhoto sendPhoto(Update update){
         return new SendPhoto(update.message().chat().id(), "https://ledo.pro/wp-content/uploads/2019/12/1491303941_shema_proezda.png");

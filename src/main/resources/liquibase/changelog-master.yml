@@ -1,3 +1,5 @@
 databaseChangeLog:
   - include:
       file: liquibase/scripts/init.sql
+  - includeAll:
+      path: liquibase/scripts/update

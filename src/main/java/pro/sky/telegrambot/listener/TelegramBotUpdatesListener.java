@@ -42,7 +42,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * Перед сохранением в БД.
      */
 //    private Client client = new Client();
-    private Map<List<Message>, Client> clients = new HashMap<>();
+    private Map<Client, List<Message>> clients = new HashMap<>();
 
 //    /**
 //     * Поле {@link TelegramBotUpdatesListener#messageHistory} хранит историю
@@ -129,7 +129,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 log.info("блок текстовых сообщений");
                 if (update.message().text().equals(COMMAND_START)) {//меню 1
                     log.info("блок команды старт");
-                    clients.put(new ArrayList<>(List.of(update.message())), new Client());
+                    clients.put(new Client(), new ArrayList<>(List.of(update.message())));
                     this.deleteAllPreviousMessages();
                     this.startCommandReact(update);
 
@@ -138,16 +138,26 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 if (isMessageEqualsPrevious(update, BTN_REACT_CONTACTS_FIRST_NAME)) {
                     log.info("блок ввода имени");
                     String firstName = this.saveContacts(update, BTN_REACT_CONTACTS_LAST_NAME);
-                    clients.get(findClientByChatId(update.message())).setFirstName(firstName);
-                    log.info("{}", clients.get(findClientByChatId(update.message())));
+                    //для перезаписи ключа требуется сначала сохранить значение
+                    List<Message> clientsList = clients.get(findClientByChatId(update.message()));
+                    //сохраняем ключ в отдельной переменной
+                    Client client = getClient(update, clients);
+                    //дополняем объект ключа новым полем с именем
+                    client.setFirstName(firstName);
+                    log.info("{}", clients.put(client, clientsList));
                     log.info("{}", getHistoryList(update));
                 }
                 //Если пользователь хочет оставить контакты - получение фамилии
                 if (isMessageEqualsPrevious(update, BTN_REACT_CONTACTS_LAST_NAME)) {
                     log.info("блок ввода фамилии");
                     String lastName = this.saveContacts(update, BTN_REACT_CONTACTS_PHONE);
-                    clients.get(findClientByChatId(update.message())).setLastName(lastName);
-                    log.info("{}", clients.get(findClientByChatId(update.message())));
+                    //для перезаписи ключа требуется сначала сохранить значение
+                    List<Message> clientsList = clients.get(findClientByChatId(update.message()));
+                    //сохраняем ключ в отдельной переменной
+                    Client client = getClient(update, clients);
+                    //дополняем объект ключа новым полем с фамилией
+                    client.setFirstName(lastName);
+                    log.info("{}", clients.put(client, clientsList));
                     log.info("{}", getHistoryList(update));
                 }
                 //Если пользователь хочет оставить контакты - получение телефона
@@ -155,17 +165,34 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     log.info("блок ввода номера телефона");
                     String phoneNum = this.saveContacts(update, BTN_REACT_THANKING);
 
-                    clients.get(findClientByChatId(update.message())).setPhone(phoneNum);
-                    clients.get(findClientByChatId(update.message())).setChatId(update.message().chat().id());
-                    clients.get(findClientByChatId(update.message())).setTelegramId(update.message().from().id());
+                    //для перезаписи ключа требуется сначала сохранить значение
+                    List<Message> clientsList = clients.get(findClientByChatId(update.message()));
+                    //сохраняем ключ в отдельной переменной
+                    Client client = getClient(update, clients);
+                    //дополняем объект ключа новым полем с фамилией
+                    client.setFirstName(phoneNum);
+                    log.info("{}", clients.put(client, clientsList));
                     log.info("{}", clients.get(findClientByChatId(update.message())));
-
                     log.info("{}", getHistoryList(update));
-                    log.info("{}", clients.values());
                 }
             }
         });
         return UpdatesListener.CONFIRMED_UPDATES_ALL;
+    }
+
+    /**
+     * Метод достает из мапы ключ - объект client, чтобы в последствии можно было использовать его для перезаписи ключа.
+     * @param update
+     * @param clientsMap
+     * @return объект client
+     */
+    public Client getClient(Update update, Map<Client, List<Message>> clientsMap){
+        for(Map.Entry<Client, List<Message>> entry: clientsMap.entrySet()){
+            if(update.message().chat().id().equals(entry.getKey().getChatId())){
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 
     /**
@@ -382,9 +409,15 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         log.info("start-message = {}", message);
         //бот отправляет сообщение в чат и одновременно записываем в переменную id этого сообщения
         Message sentMessageId = telegramBot.execute(message.replyMarkup(KeyboardMaker.keyboardCatDog())).message();
+        //добавляем в client chatId, telegramId
+        for (Map.Entry<Client, List<Message>> entry: clients.entrySet()) {
+            entry.getKey().setChatId(chatId);
+            entry.getKey().setTelegramId(update.message().from().id());
+        }
         //записываем полученное и отправленное сообщения в историю сообщений
         getHistoryList(update).add(update.message());
         getHistoryList(update).add(sentMessageId);
+
         log.info("+++++++++++++++++++++++++++++++++++++");
     }
 
@@ -414,8 +447,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private void deleteAllPreviousMessages() {
         log.info("deleteAllPreviousMessages запущен");
 
-        for (Map.Entry<List<Message>, Client> entry: clients.entrySet()) {
-            List<Message> messageHistory = entry.getKey();
+        for (Map.Entry<Client, List<Message>> entry: clients.entrySet()) {
+            List<Message> messageHistory = entry.getValue();
             for (Message message : messageHistory) {
                 Long chatId = message.chat().id();
                 Integer messageId = message.messageId();
@@ -429,16 +462,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /**
      * Метод ищет в мапе {@link TelegramBotUpdatesListener#clients} клиента с заданным <b>chatId</b>.
      *
-     * @param targetChatId
+     * @param message
      * @return клиента, который соответствует <b>chatId</b>.
      */
     public Client findClientByChatId(Message message) {
-        for (Map.Entry<List<Message>, Client> entry : clients.entrySet()) {
-            List<Message> messageList = entry.getKey();
-            for (Message messageElement : messageList) {
-                if (messageElement.chat().id().equals(message.chat().id())) {
-                    return entry.getValue();
-                }
+        for (Map.Entry<Client, List<Message>> entry : clients.entrySet()) {
+            if (message.chat().id().equals(entry.getKey().getChatId())){
+                return entry.getKey();
             }
         }
         // Если не найдено соответствующего клиента, можно вернуть null.
@@ -448,19 +478,12 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     /**
      * Метод добавляет <b>message</b> в историю сообщений конкретного клиента по его <b>chatId</b>.
      *
-     * @param update
+     * @param message
      */
     public void addHistory(Message message) {
-        for (Map.Entry<List<Message>, Client> entry : clients.entrySet()) {
-            List<Message> messageList = entry.getKey();
-            boolean flag = false;
-            for (Message messageElement : messageList) {
-                if (messageElement.chat().id().equals(message.chat().id())) {
-                    flag = true;
-                }
-            }
-            if (flag) {
-                messageList.add(message);
+        for (Map.Entry<Client, List<Message>> entry : clients.entrySet()) {
+            if(message.chat().id().equals(entry.getKey().getChatId())){
+                entry.getValue().add(message);
             }
         }
     }
@@ -472,22 +495,13 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * @return список message
      */
     public List<Message> getHistoryList(Update update) {
-        List<Message> messageList = new ArrayList<>();
-        for (Map.Entry<List<Message>, Client> entry : clients.entrySet()) {
-            messageList = entry.getKey();
-            boolean flag = false;
-            for (Message message : messageList) {
-                if (message.chat().id().equals(update.message().chat().id())) {
-                    flag = true;
-                }
-            }
-            if (flag) {
-                return messageList;
+        for (Map.Entry<Client, List<Message>> entry : clients.entrySet()) {
+            if(update.message().chat().id().equals(entry.getKey().getChatId())){
+                return entry.getValue();
             }
         }
-        return messageList;
+        return null;
     }
-
 
 //    /**
 //     * Метод возвращает <b>true</b>, если заданный текст присутствует в

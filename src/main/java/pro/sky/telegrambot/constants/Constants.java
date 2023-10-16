@@ -127,9 +127,9 @@ public class Constants {
     public static final String BTN_REACT_CONTACTS_MESSAGE = "<b>Дорогой друг!</b>\n" +
                                                             "Если ты хочешь, чтобы с тобой связались,\n" +
                                                             "следуй инструкциям из сообщений ниже.";
-    public static final String BTN_REACT_CONTACTS_FIRST_NAME = "Ведите ваше имя...";
-    public static final String BTN_REACT_CONTACTS_LAST_NAME = "Ведите вашу фамилию...";
-    public static final String BTN_REACT_CONTACTS_PHONE = "Ведите ваш номер телефона.\nв формате: +7(ХХХ)ХХХ-ХХ-ХХ";
+    public static final String BTN_REACT_CONTACTS_FIRST_NAME = "Введите ваше имя...";
+    public static final String BTN_REACT_CONTACTS_LAST_NAME = "Введите вашу фамилию...";
+    public static final String BTN_REACT_CONTACTS_PHONE = "Введите ваш номер телефона.\nв формате: +7(ХХХ)ХХХ-ХХ-ХХ";
     public static final String BTN_REACT_THANKING = "Спасибо!";
 
 }

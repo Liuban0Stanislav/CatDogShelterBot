@@ -1,7 +1,9 @@
 package pro.sky.telegrambot.model;
 
+import com.pengrad.telegrambot.model.Message;
+
 import javax.persistence.*;
-import java.util.Objects;
+import java.util.*;
 
 @Entity
 @Table(name = "clients")
@@ -25,6 +27,9 @@ public class Client {
 
     @Column(name = "phone")
     private String phone;
+
+    @Column(name = "client_choice")
+    private boolean clientСhoice;
 
     public Client() {
     }
@@ -84,6 +89,14 @@ public class Client {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public boolean isClientСhoice() {
+        return clientСhoice;
+    }
+
+    public void setClientСhoice(boolean clientСhoice) {
+        this.clientСhoice = clientСhoice;
     }
 
     @Override

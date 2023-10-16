@@ -74,3 +74,6 @@ alter table reports
 
 alter table adopters
     add foreign key (client_id) references clients (id);
+
+-- changeset SLyuban:2
+alter table clients add client_choice bool not null default true ;

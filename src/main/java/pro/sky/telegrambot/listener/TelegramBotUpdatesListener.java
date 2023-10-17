@@ -111,7 +111,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                         break;
                     case BUTTON_CONTACTS://меню 2.1.5
                         this.buttonContactsReact(update);
-                        log.info("{}", getHistoryList(update));
+//                        log.info("{}", getHistoryList(update));
                         break;
 
                     case BUTTON_HOW_TO_GET_ANIMAL://меню 2.2
@@ -496,7 +496,8 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      */
     public List<Message> getHistoryList(Update update) {
         for (Map.Entry<Client, List<Message>> entry : clients.entrySet()) {
-            if(update.message().chat().id().equals(entry.getKey().getChatId())){
+            Long chatId = (update.message().text() != null)? update.message().chat().id() : update.callbackQuery().message().chat().id();
+            if(chatId.equals(entry.getKey().getChatId())){
                 return entry.getValue();
             }
         }

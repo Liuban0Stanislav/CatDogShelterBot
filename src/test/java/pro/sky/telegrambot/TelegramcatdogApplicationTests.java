@@ -1,4 +1,4 @@
-package pro.sky.telegramcatdog;
+package pro.sky.telegrambot;
 
 import org.springframework.boot.test.context.SpringBootTest;
 

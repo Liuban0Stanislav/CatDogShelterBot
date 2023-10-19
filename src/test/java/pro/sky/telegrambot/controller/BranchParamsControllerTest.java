@@ -1,4 +1,4 @@
-package pro.sky.telegramcatdog.controller;
+package pro.sky.telegrambot.controller;
 
 import com.pengrad.telegrambot.TelegramBot;
 import org.assertj.core.api.Assertions;
@@ -11,10 +11,10 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
-import pro.sky.telegramcatdog.model.BranchParams;
+import pro.sky.telegrambot.model.BranchParams;
 
-import static pro.sky.telegramcatdog.constants.Constants.BRANCHPARAMS_URL;
-import static pro.sky.telegramcatdog.constants.Constants.LOCALHOST_URL;
+import static pro.sky.telegrambot.constants.Constants.BRANCHPARAMS_URL;
+import static pro.sky.telegrambot.constants.Constants.LOCALHOST_URL;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")

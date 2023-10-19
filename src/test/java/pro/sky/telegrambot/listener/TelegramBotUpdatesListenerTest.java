@@ -1,4 +1,4 @@
-package pro.sky.telegramcatdog.listener;
+package pro.sky.telegrambot.listener;
 
 import com.pengrad.telegrambot.BotUtils;
 import com.pengrad.telegrambot.TelegramBot;
@@ -12,13 +12,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import pro.sky.telegramcatdog.constants.DocType;
-import pro.sky.telegramcatdog.constants.PetType;
-import pro.sky.telegramcatdog.constants.UpdateStatus;
-import pro.sky.telegramcatdog.model.*;
-import pro.sky.telegramcatdog.repository.*;
-import pro.sky.telegramcatdog.service.AdopterService;
-import pro.sky.telegramcatdog.service.VolunteerService;
+import pro.sky.telegrambot.constants.DocType;
+import pro.sky.telegrambot.constants.PetType;
+import pro.sky.telegrambot.constants.UpdateStatus;
+import pro.sky.telegrambot.model.*;
+import pro.sky.telegrambot.repository.*;
+import pro.sky.telegrambot.service.AdopterService;
+import pro.sky.telegrambot.service.VolunteerService;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -31,8 +31,8 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static pro.sky.telegramcatdog.constants.Constants.*;
-import static pro.sky.telegramcatdog.constants.DocType.*;
+import static pro.sky.telegrambot.constants.Constants.*;
+import static pro.sky.telegrambot.constants.DocType.*;
 
 @ExtendWith(MockitoExtension.class)
 class TelegramBotUpdatesListenerTest {

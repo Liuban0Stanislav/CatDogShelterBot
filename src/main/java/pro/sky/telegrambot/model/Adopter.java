@@ -1,7 +1,10 @@
 package pro.sky.telegrambot.model;
 
 import javax.persistence.*;
-import java.util.Date;
+import pro.sky.telegrambot.constants.AdopterStatus;
+import pro.sky.telegrambot.constants.UpdateStatus;
+
+import java.util.Collection;
 import java.util.Objects;
 
 @Entity
@@ -9,122 +12,159 @@ import java.util.Objects;
 public class Adopter {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
-    private long id;
+    private Long id;
+    private String firstName;
+    private String lastName;
+    private String passport;
+    private int age;
+    private String phone1;
+    private String phone2;
 
-    @OneToOne
-    @JoinColumn(name = "client_id")
-    private Client client;
+    @Column(name = "chat_id")
+    private long chatId;
 
-    @OneToOne
-    @JoinColumn(name = "animal_id")
-    private Animal animal;
+    private String username;
+    private int volunteerId;
+    private AdopterStatus status;
 
-    @OneToOne
-    @JoinColumn(name = "shelter_id")
-    private Shelter shelter;
+    @Column(name = "update_status")
+    private UpdateStatus updateStatus;
 
-    @Column(name = "probation_start")
-    private Date probationStart;
+    @Column(name = "prob_extend")
+    private Integer probExtend;
 
-    @Column(name = "probation_end")
-    private Date probationEnd;
+    @OneToMany(mappedBy = "adopterId")
+    private Collection<Pet> pets;
 
-    @Column(name = "probation_result")
-    private Boolean probationResult;
+    public Adopter(long id, String firstName, String lastName, String phone1, long chatId, String username, int probExtend) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone1 = phone1;
+        this.chatId = chatId;
+        this.username = username;
+        this.probExtend = probExtend;
+    }
+
+    public Adopter(String firstName, String lastName, String phone1, long chatId, String username, int probExtend) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.phone1 = phone1;
+        this.chatId = chatId;
+        this.username = username;
+        this.probExtend = probExtend;
+    }
 
     public Adopter() {
-    }
 
-    public Adopter(long id, Client client, Animal animal, Shelter shelter, Date probationStart, Date probationEnd, Boolean probationResult) {
-        this.id = id;
-        this.client = client;
-        this.animal = animal;
-        this.shelter = shelter;
-        this.probationStart = probationStart;
-        this.probationEnd = probationEnd;
-        this.probationResult = probationResult;
-    }
-
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public Client getClient() {
-        return client;
-    }
-
-    public void setClient(Client client) {
-        this.client = client;
-    }
-
-    public Animal getAnimal() {
-        return animal;
-    }
-
-    public void setAnimal(Animal animal) {
-        this.animal = animal;
-    }
-
-    public Shelter getShelter() {
-        return shelter;
-    }
-
-    public void setShelter(Shelter shelter) {
-        this.shelter = shelter;
-    }
-
-    public Date getProbationStart() {
-        return probationStart;
-    }
-
-    public void setProbationStart(Date probationStart) {
-        this.probationStart = probationStart;
-    }
-
-    public Date getProbationEnd() {
-        return probationEnd;
-    }
-
-    public void setProbationEnd(Date probationEnd) {
-        this.probationEnd = probationEnd;
-    }
-
-    public Boolean getProbationResult() {
-        return probationResult;
-    }
-
-    public void setProbationResult(Boolean probationResult) {
-        this.probationResult = probationResult;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof Adopter)) return false;
         Adopter adopter = (Adopter) o;
-        return id == adopter.id && Objects.equals(client, adopter.client) && Objects.equals(animal, adopter.animal) && Objects.equals(shelter, adopter.shelter) && Objects.equals(probationStart, adopter.probationStart) && Objects.equals(probationEnd, adopter.probationEnd) && Objects.equals(probationResult, adopter.probationResult);
+        return getId().equals(adopter.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, client, animal, shelter, probationStart, probationEnd, probationResult);
+        return Objects.hash(getId());
     }
 
-    @Override
-    public String toString() {
-        return "Adopter{" +
-                "id=" + id +
-                ", client=" + client +
-                ", animal=" + animal +
-                ", shelter=" + shelter +
-                ", probationStart=" + probationStart +
-                ", probationEnd=" + probationEnd +
-                ", probationResult=" + probationResult +
-                '}';
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getPassport() {
+        return passport;
+    }
+
+    public void setPassport(String passport) {
+        this.passport = passport;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String getPhone1() {
+        return phone1;
+    }
+
+    public void setPhone1(String phone1) {
+        this.phone1 = phone1;
+    }
+
+    public String getPhone2() {
+        return phone2;
+    }
+
+    public void setPhone2(String phone2) {
+        this.phone2 = phone2;
+    }
+
+    public int getVolunteerId() {
+        return volunteerId;
+    }
+
+    public void setVolunteerId(int volunteerId) {
+        this.volunteerId = volunteerId;
+    }
+
+    public AdopterStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AdopterStatus status) {
+        this.status = status;
+    }
+
+    public long getChatId() {
+        return chatId;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public UpdateStatus getUpdateStatus() {
+        return updateStatus;
+    }
+
+    public void setUpdateStatus(UpdateStatus updateStatus) {
+        this.updateStatus = updateStatus;
+    }
+
+    public int getProbExtend() {
+        return probExtend;
+    }
+
+    public void setProbExtend(Integer probExtend) {
+        this.probExtend = probExtend;
     }
 }

@@ -1,0 +1,13 @@
+{
+  "message": {
+    "contact": {
+      "firstName": "Vasya",
+      "lastName": "Pupkin",
+      "phoneNumber": "+79101234567"
+    },
+    "chat": {
+      "username": "@vasya_pupkin",
+      "id": 1122334455
+    }
+  }
+}

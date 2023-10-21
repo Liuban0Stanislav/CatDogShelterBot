@@ -24,6 +24,7 @@ import pro.sky.telegrambot.exception.GuestNotFoundException;
 import pro.sky.telegrambot.model.*;
 import pro.sky.telegrambot.repository.*;
 import pro.sky.telegrambot.service.AdopterService;
+import pro.sky.telegrambot.service.KeyboardService;
 import pro.sky.telegrambot.service.VolunteerService;
 
 import java.io.IOException;
@@ -59,8 +60,17 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private final BranchParamsRepository branchParamsRepository;
     private final VolunteerService volunteerService;
     private final AdopterService adopterService;
+    private final KeyboardService keyboardService;
 
-    public TelegramBotUpdatesListener(TelegramBot telegramBot, GuestRepository guestRepository, AdopterRepository adopterRepository, AdoptionDocRepository adoptionDocRepository, AdoptionReportRepository adoptionReportRepository, BranchParamsRepository branchParamsRepository, VolunteerService volunteerService, AdopterService adopterService) {
+    public TelegramBotUpdatesListener(TelegramBot telegramBot,
+                                      GuestRepository guestRepository,
+                                      AdopterRepository adopterRepository,
+                                      AdoptionDocRepository adoptionDocRepository,
+                                      AdoptionReportRepository adoptionReportRepository,
+                                      BranchParamsRepository branchParamsRepository,
+                                      VolunteerService volunteerService,
+                                      AdopterService adopterService,
+                                      KeyboardService keyboardService) {
         this.telegramBot = telegramBot;
         this.guestRepository = guestRepository;
         this.adopterRepository = adopterRepository;
@@ -69,6 +79,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         this.branchParamsRepository = branchParamsRepository;
         this.volunteerService = volunteerService;
         this.adopterService = adopterService;
+        this.keyboardService = keyboardService;
     }
 
     @PostConstruct
@@ -96,87 +107,6 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         if (response != null && !response.isOk()) {
             logger.warn("Message was not sent: {}, error code: {}", message, response.errorCode());
         }
-    }
-
-    /**
-     * Creates buttons for the shelter type selection message (reply to the /start command)
-     *
-     * @return {@code InlineKeyboardMarkup}
-     */
-    private InlineKeyboardMarkup createButtonsShelterTypeSelect() {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_CAT_SHELTER_TEXT).callbackData(BUTTON_CAT_SHELTER_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_DOG_SHELTER_TEXT).callbackData(BUTTON_DOG_SHELTER_CALLBACK_TEXT));
-        return inlineKeyboardMarkup;
-    }
-
-    /**
-     * Creates buttons for the reply message to the shelter type selection (Stage 0)
-     *
-     * @return {@code InlineKeyboardMarkup}
-     */
-    private InlineKeyboardMarkup createButtonsStage0() {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_STAGE1_TEXT).callbackData(BUTTON_STAGE1_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_STAGE2_TEXT).callbackData(BUTTON_STAGE2_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_STAGE3_TEXT).callbackData(BUTTON_STAGE3_CALLBACK_TEXT));
-        return inlineKeyboardMarkup;
-    }
-
-    private InlineKeyboardMarkup createButtonsStage1() {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_INFO_SHELTER_TEXT).callbackData(BUTTON_INFO_SHELTER_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_INFO_SECURITY_TEXT).callbackData(BUTTON_INFO_SECURITY_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_INFO_SAFETY_PRECAUTIONS_TEXT).callbackData(BUTTON_INFO_SAFETY_PRECAUTIONS_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_SHARE_CONTACT_DETAILS_TEXT).callbackData(BUTTON_SHARE_CONTACT_CALLBACK_TEXT));
-        return inlineKeyboardMarkup;
-    }
-
-    private InlineKeyboardMarkup createButtonsStage2() {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_RULES_MEETING_ANIMAL_TEXT).callbackData(BUTTON_RULES_MEETING_ANIMAL_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_DOCS_FOR_ADOPTION_TEXT).callbackData(BUTTON_DOCS_FOR_ADOPTION_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_RECOMMENDATIONS_FOR_TRANSPORT_TEXT).callbackData(BUTTON_RECOMMENDATIONS_FOR_TRANSPORT_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_ARRANGEMENT_FOR_PUPPY_TEXT).callbackData(BUTTON_ARRANGEMENT_FOR_PUPPY_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_ARRANGEMENT_FOR_ADULT_TEXT).callbackData(BUTTON_ARRANGEMENT_FOR_ADULT_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_ADVICES_FOR_DISABLED_PET_TEXT).callbackData(BUTTON_ADVICES_FOR_DISABLED_PET_CALLBACK_TEXT));
-        if (shelterType.equals(DOG)) {
-            inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_ADVICES_FROM_KINOLOG_TEXT).callbackData(BUTTON_ADVICES_FROM_KINOLOG_CALLBACK_TEXT));
-            inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_RECOMMENDED_KINOLOGS_TEXT).callbackData(BUTTON_RECOMMENDED_KINOLOGS_CALLBACK_TEXT));
-        }
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_REASONS_FOR_REFUSAL_TEXT).callbackData(BUTTON_REASONS_FOR_REFUSAL_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_SHARE_CONTACT_DETAILS_TEXT).callbackData(BUTTON_SHARE_CONTACT_CALLBACK_TEXT));
-        return inlineKeyboardMarkup;
-    }
-
-    private InlineKeyboardMarkup createButtonsStage3() {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_REPORT_TEMPLATE_TEXT).callbackData(BUTTON_REPORT_TEMPLATE_CALLBACK_TEXT));
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_SEND_REPORT_TEXT).callbackData(BUTTON_SEND_REPORT_CALLBACK_TEXT));
-        return inlineKeyboardMarkup;
-    }
-
-    private InlineKeyboardMarkup createButtonsSendReport() {
-        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
-        inlineKeyboardMarkup.addRow(new InlineKeyboardButton(BUTTON_CANCEL_TEXT).callbackData(BUTTON_CANCEL_SEND_REPORT_CALLBACK_TEXT));
-        return inlineKeyboardMarkup;
-    }
-
-    private ReplyKeyboardMarkup createRequestContactKeyboardButton() {
-        KeyboardButton keyboardButton1 = new KeyboardButton(BUTTON_SHARE_CONTACT_TEXT);
-        KeyboardButton keyboardButton2 = new KeyboardButton(BUTTON_CANCEL_TEXT);
-        keyboardButton1.requestContact(true);
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboardButton1, keyboardButton2);
-        replyKeyboardMarkup.resizeKeyboard(true);
-        return replyKeyboardMarkup;
-    }
-
-    private ReplyKeyboardMarkup createMainMenuKeyboardButtons() {
-        KeyboardButton keyboardButton1 = new KeyboardButton(BUTTON_MAIN_MENU_TEXT);
-        KeyboardButton keyboardButton2 = new KeyboardButton(BUTTON_CALL_VOLUNTEER_TEXT);
-        ReplyKeyboardMarkup replyKeyboardMarkup = new ReplyKeyboardMarkup(keyboardButton1, keyboardButton2);
-        replyKeyboardMarkup.resizeKeyboard(true);
-        return replyKeyboardMarkup;
     }
 
     /**
@@ -240,7 +170,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private void cancelShareContact(Update update) {
         long chatId = update.message().chat().id();
         SendMessage message = new SendMessage(chatId, CANCEL_SHARE_CONTACT_MSG_TEXT);
-        sendMessage(message.replyMarkup(createMainMenuKeyboardButtons()));
+        sendMessage(message.replyMarkup(keyboardService.createMainMenuKeyboardButtons()));
     }
 
     private void cancelSendReport(long chatId) {
@@ -383,7 +313,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         long chatId = update.callbackQuery().from().id();
         SendMessage message = new SendMessage(chatId, SHARE_CONTACT_MSG_TEXT);
         // Adding buttons
-        message.replyMarkup(createRequestContactKeyboardButton());
+        message.replyMarkup(keyboardService.createRequestContactKeyboardButton());
         sendMessage(message);
     }
 
@@ -426,7 +356,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
     private void sendShelterTypeSelectMessage(long chatId) {
         SendMessage message = new SendMessage(chatId, SHELTER_TYPE_SELECT_MSG_TEXT);
         // Adding buttons
-        message.replyMarkup(createButtonsShelterTypeSelect());
+        message.replyMarkup(keyboardService.createButtonsShelterTypeSelect());
         sendMessage(message);
     }
 
@@ -435,7 +365,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         // Remove all buttons
         //message.replyMarkup(new ReplyKeyboardRemove());
         // Adding buttons
-        message.replyMarkup(createButtonsStage0());
+        message.replyMarkup(keyboardService.createButtonsStage0());
         sendMessage(message);
     }
 
@@ -457,11 +387,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 messageText = CAT_SHELTER_STAGE1_WELCOME_MSG_TEXT;
                 break;
         }
-        Message message1 = new Message();
 
         SendMessage message = new SendMessage(chatId, messageText);
         // Adding buttons
-        message.replyMarkup(createButtonsStage1());
+        message.replyMarkup(keyboardService.createButtonsStage1());
         sendMessage(message);
     }
 
@@ -480,7 +409,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         };
         SendMessage message = new SendMessage(chatId, messageText);
         // Adding buttons
-        message.replyMarkup(createButtonsStage2());
+        message.replyMarkup(keyboardService.createButtonsStage2(shelterType));
 
         sendMessage(message);
     }
@@ -597,7 +526,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
         }
         SendMessage message = new SendMessage(chatId, messageText);
         // Adding buttons
-        message.replyMarkup(createButtonsStage3());
+        message.replyMarkup(keyboardService.createButtonsStage3());
         sendMessage(message);
     }
 
@@ -682,10 +611,10 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 adopter.setUpdateStatus(UpdateStatus.DEFAULT);
                 adopterRepository.save(adopter);
                 SendMessage message = new SendMessage(chatId, SAVE_ADOPTER_SUCCESS_TEXT + ' ' + WE_WILL_CALL_YOU_TEXT);
-                sendMessage(message.replyMarkup(createMainMenuKeyboardButtons()));
+                sendMessage(message.replyMarkup(keyboardService.createMainMenuKeyboardButtons()));
             } else {
                 SendMessage message = new SendMessage(chatId, ADOPTER_ALREADY_EXISTS_TEXT + ' ' + WE_WILL_CALL_YOU_TEXT);
-                sendMessage(message.replyMarkup(createMainMenuKeyboardButtons()));
+                sendMessage(message.replyMarkup(keyboardService.createMainMenuKeyboardButtons()));
             }
         }
     }
@@ -700,7 +629,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             adoptionReportRepository.save(adoptionReport);
             adopterService.setUpdateStatus(chatId, UpdateStatus.WAITING_FOR_PET_PICTURE);
             SendMessage requestPhotoMessage = new SendMessage(chatId, PHOTO_WAITING_MESSAGE);
-            requestPhotoMessage.replyMarkup(createButtonsSendReport());
+            requestPhotoMessage.replyMarkup(keyboardService.createButtonsSendReport());
             sendMessage(requestPhotoMessage);
         } else {
             SendMessage message = new SendMessage(chatId, ADOPTION_REPORT_ALREADY_EXIST);

@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.test.web.server.LocalServerPort;
+//import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
@@ -23,7 +23,7 @@ import static pro.sky.telegrambot.constants.Constants.VOLUNTEER_URL;
 @ActiveProfiles("test")
 class VolunteerControllerTest {
 
-    @LocalServerPort
+//    @LocalServerPort
     private int port;
 
     @MockBean
@@ -35,7 +35,7 @@ class VolunteerControllerTest {
     @Test
     void getVolunteer() {
         // Create new volunteer and check that it was created OK
-        Volunteer volunteer = new Volunteer(1, "Vasya", 1234567809, "https://t.me/vasyapupkin", null);
+        Volunteer volunteer = new Volunteer(1, "Vasya", 1234567809, "https://t.me/vasyapupkin");
         ResponseEntity<Volunteer> responseCreated = getCreateVolunteerResponse(volunteer);
         assertCreatedVolunteer(volunteer, responseCreated);
 
@@ -52,7 +52,7 @@ class VolunteerControllerTest {
 
     @Test
     void createVolunteer() {
-        Volunteer volunteer = new Volunteer(1, "Vasya", 1234567809, "https://t.me/vasyapupkin", null);
+        Volunteer volunteer = new Volunteer(1, "Vasya", 1234567809, "https://t.me/vasyapupkin");
         ResponseEntity<Volunteer> response = getCreateVolunteerResponse(volunteer);
         assertCreatedVolunteer(volunteer, response);
     }
@@ -65,7 +65,7 @@ class VolunteerControllerTest {
         long newChatId = 1122334455;
 
         // Create new volunteer first and check that it was created OK
-        Volunteer volunteer = new Volunteer(1, oldName, oldChatId, "https://t.me/vasyapupkin", null);
+        Volunteer volunteer = new Volunteer(1, oldName, oldChatId, "https://t.me/vasyapupkin");
         ResponseEntity<Volunteer> responseCreated = getCreateVolunteerResponse(volunteer);
         assertCreatedVolunteer(volunteer, responseCreated);
 

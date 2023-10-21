@@ -143,3 +143,6 @@ ALTER TABLE adopters ADD COLUMN IF NOT EXISTS update_status INT;
 -- changeset Stanislav:13
 ALTER TABLE branch_params DROP COLUMN IF EXISTS prob_extend;
 ALTER TABLE adopters ADD COLUMN IF NOT EXISTS prob_extend INT;
+
+-- changeset Stanislav:14
+ALTER TABLE volunteers DROP COLUMN IF EXISTS picture;

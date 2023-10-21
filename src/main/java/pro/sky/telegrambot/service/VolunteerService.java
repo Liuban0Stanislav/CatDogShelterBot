@@ -33,7 +33,6 @@ public class VolunteerService {
         oldVolunteer.setName(volunteer.getName());
         oldVolunteer.setChatId(volunteer.getChatId());
         oldVolunteer.setUsername(volunteer.getUsername());
-        oldVolunteer.setPicture(volunteer.getPicture());
         return volunteerRepository.save(oldVolunteer);
     }
 

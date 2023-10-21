@@ -159,7 +159,7 @@ class TelegramBotUpdatesListenerTest {
     public void handleCallVolunteerChatIdTest() throws URISyntaxException, IOException {
         Long volunteerId = 1234567809L;
         String userId = "1234567809";
-        Volunteer volunteer = new Volunteer(1, "Vasya", volunteerId, "https://t.me/vasyapupkin", null);
+        Volunteer volunteer = new Volunteer(1, "Vasya", volunteerId, "https://t.me/vasyapupkin");
 
         when(volunteerService.getRandomVolunteer()).thenReturn(volunteer);
 
@@ -181,7 +181,7 @@ class TelegramBotUpdatesListenerTest {
     public void handleCallVolunteerUsernameTest() throws URISyntaxException, IOException {
         Long volunteerId = 1234567809L;
         String userId = "@vasyapupkin";
-        Volunteer volunteer = new Volunteer(1, "Volunteer 1", volunteerId, "https://t.me/volunteer1", null);
+        Volunteer volunteer = new Volunteer(1, "Volunteer 1", volunteerId, "https://t.me/volunteer1");
 
         when(volunteerService.getRandomVolunteer()).thenReturn(volunteer);
 

@@ -11,7 +11,9 @@ import com.pengrad.telegrambot.request.GetFile;
 import com.pengrad.telegrambot.request.SendMessage;
 import com.pengrad.telegrambot.response.GetFileResponse;
 import com.pengrad.telegrambot.response.SendResponse;
+
 import javax.annotation.PostConstruct;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -658,6 +660,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
      * Default probation period for adopter equals the selected shelter probation period,
      * i.e. by default {@code [adopters].[prob_extend] = [branch_params].[prob_period]}.
      * The {@code [adopters].[prob_extend]} can be increased later by volunteer if needed.
+     *
      * @param update
      */
     private void saveAdopter(Update update) {
@@ -667,6 +670,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             String phone1 = update.message().contact().phoneNumber();
             String username = update.message().chat().username();
             long chatId = update.message().chat().id();
+            int probExtendDefault = 30; //default
 
             Adopter adopter = adopterRepository.findByChatId(chatId);
             if (adopter == null) {
@@ -674,8 +678,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                 if (guest == null) {
                     throw new GuestNotFoundException(chatId);
                 }
-                BranchParams branchParams = branchParamsRepository.findByPetType(guest.getLastMenu()).orElse(null);
-                adopter = new Adopter(firstName, lastName, phone1, chatId, username, branchParams.getProbPeriod());
+                adopter = new Adopter(firstName, lastName, phone1, chatId, username, probExtendDefault);
                 adopter.setUpdateStatus(UpdateStatus.DEFAULT);
                 adopterRepository.save(adopter);
                 SendMessage message = new SendMessage(chatId, SAVE_ADOPTER_SUCCESS_TEXT + ' ' + WE_WILL_CALL_YOU_TEXT);

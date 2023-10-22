@@ -18,6 +18,7 @@ import pro.sky.telegrambot.constants.UpdateStatus;
 import pro.sky.telegrambot.model.*;
 import pro.sky.telegrambot.repository.*;
 import pro.sky.telegrambot.service.AdopterService;
+import pro.sky.telegrambot.service.KeyboardService;
 import pro.sky.telegrambot.service.VolunteerService;
 
 import java.io.IOException;
@@ -63,6 +64,9 @@ class TelegramBotUpdatesListenerTest {
 
     @Mock
     private AdopterService adopterService;
+
+    @Mock
+    private KeyboardService keyboardService;
 
     /* Testing '/start' command when it is a new guest (unknown guest). */
     @Test

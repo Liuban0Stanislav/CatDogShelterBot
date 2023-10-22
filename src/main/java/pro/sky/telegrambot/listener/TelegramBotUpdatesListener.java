@@ -243,62 +243,62 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
                     break;
                 case BUTTON_INFO_SHELTER_CALLBACK_TEXT:
                     // Safety information
-                    sendButtonClickMessage(chatId, BUTTON_INFO_SHELTER_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_INFO_SHELTER_TEXT_ANSWER);
                     processGettingInformationAboutShelter(chatId);
                     break;
                 case BUTTON_INFO_SECURITY_CALLBACK_TEXT:
                     // Obtaining security contacts
-                    sendButtonClickMessage(chatId, BUTTON_INFO_SECURITY_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_INFO_SECURITY_TEXT_ANSWER);
                     processGettingInformationAboutSecurity(chatId);
                     break;
                 case BUTTON_INFO_SAFETY_PRECAUTIONS_CALLBACK_TEXT:
                     // Obtaining Safety Instructions
-                    sendButtonClickMessage(chatId, BUTTON_INFO_SAFETY_PRECAUTIONS_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_INFO_SAFETY_PRECAUTIONS_TEXT_ANSWER);
                     processGettingInformationAboutSafetyPrecautions(chatId);
                     break;
                 case BUTTON_RULES_MEETING_ANIMAL_CALLBACK_TEXT:
                     // Instruction how to meet animal first time
-                    sendButtonClickMessage(chatId, BUTTON_RULES_MEETING_ANIMAL_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_RULES_MEETING_ANIMAL_TEXT_ANSWER);
                     processInfoMeetingClick(chatId);
                     break;
                 case BUTTON_DOCS_FOR_ADOPTION_CALLBACK_TEXT:
                     // List of required docs
-                    sendButtonClickMessage(chatId, BUTTON_DOCS_FOR_ADOPTION_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_DOCS_FOR_ADOPTION_TEXT_ANSWER);
                     processListOfDocsClick(chatId);
                     break;
                 case BUTTON_RECOMMENDATIONS_FOR_TRANSPORT_CALLBACK_TEXT:
                     // Recommendation how to transport animals
-                    sendButtonClickMessage(chatId, BUTTON_RECOMMENDATIONS_FOR_TRANSPORT_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_RECOMMENDATIONS_FOR_TRANSPORT_TEXT_ANSWER);
                     processTransportAnimal(chatId);
                     break;
                 case BUTTON_ARRANGEMENT_FOR_PUPPY_CALLBACK_TEXT:
                     //  Arrangement for little animal in house
-                    sendButtonClickMessage(chatId, BUTTON_ARRANGEMENT_FOR_PUPPY_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_ARRANGEMENT_FOR_PUPPY_TEXT_ANSWER);
                     processRecForLittle(chatId);
                     break;
                 case BUTTON_ARRANGEMENT_FOR_ADULT_CALLBACK_TEXT:
                     // Arrangement for adult animal in house
-                    sendButtonClickMessage(chatId, BUTTON_ARRANGEMENT_FOR_ADULT_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_ARRANGEMENT_FOR_ADULT_TEXT_ANSWER);
                     processRecForAdult(chatId);
                     break;
                 case BUTTON_ADVICES_FOR_DISABLED_PET_CALLBACK_TEXT:
                     // Advices how to be with disable animals
-                    sendButtonClickMessage(chatId, BUTTON_ADVICES_FOR_DISABLED_PET_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_ADVICES_FOR_DISABLED_PET_TEXT_ANSWER);
                     processRecForDisable(chatId);
                     break;
                 case BUTTON_ADVICES_FROM_KINOLOG_CALLBACK_TEXT:
                     // Advices from kinolog
-                    sendButtonClickMessage(chatId, BUTTON_ADVICES_FROM_KINOLOG_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_ADVICES_FROM_KINOLOG_TEXT_ANSWER);
                     processKinologAdvices(chatId);
                     break;
                 case BUTTON_RECOMMENDED_KINOLOGS_CALLBACK_TEXT:
                     // List of recommended kinologs
-                    sendButtonClickMessage(chatId, BUTTON_RECOMMENDED_KINOLOGS_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_RECOMMENDED_KINOLOGS_TEXT_ANSWER);
                     processRecKinologs(chatId);
                     break;
                 case BUTTON_REASONS_FOR_REFUSAL_CALLBACK_TEXT:
                     // Reasons why we can refuse you
-                    sendButtonClickMessage(chatId, BUTTON_REASONS_FOR_REFUSAL_TEXT);
+                    sendButtonClickMessage(chatId, BUTTON_REASONS_FOR_REFUSAL_TEXT_ANSWER);
                     processReasonsRefusal(chatId);
                     break;
                 case BUTTON_CANCEL_SEND_REPORT_CALLBACK_TEXT:
@@ -692,7 +692,7 @@ public class TelegramBotUpdatesListener implements UpdatesListener {
             adoptionReport.setBehaviorChange(newBehaviorChane);
             adoptionReportRepository.save(adoptionReport);
             SendMessage saveBehaviorChangeMessage = new SendMessage(chatId, BEHAVIOR_CHANGE_SAVED_MESSAGE);
-            sendMessage(saveBehaviorChangeMessage);
+            sendMessage(saveBehaviorChangeMessage.replyMarkup(keyboardService.createMainMenuKeyboardButtons()));
         }
     }
 

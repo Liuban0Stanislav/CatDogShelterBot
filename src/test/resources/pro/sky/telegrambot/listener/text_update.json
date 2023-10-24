@@ -1,0 +1,11 @@
+{
+  "message": {
+    "chat": {
+      "id": 1234567809
+    },
+    "from": {
+      "id": 1234567809
+    },
+    "text": "%message_text%"
+  }
+}

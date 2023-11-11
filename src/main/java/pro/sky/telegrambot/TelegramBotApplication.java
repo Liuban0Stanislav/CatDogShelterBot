@@ -14,4 +14,6 @@ public class TelegramBotApplication {
 		SpringApplication.run(TelegramBotApplication.class, args);
 	}
 
+	// комментарий для пуша
+
 }
